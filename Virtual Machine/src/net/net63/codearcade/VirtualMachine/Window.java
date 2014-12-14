@@ -16,6 +16,8 @@ public class Window implements Runnable {
 	JFrame frame;
 	Canvas canvas;
 	BufferStrategy bufferStrategy;
+	
+	Machine machine;
 
 	public Window() {
 		frame = new JFrame("Virtual Machine");
@@ -25,7 +27,7 @@ public class Window implements Runnable {
 		panel.setLayout(null);
 
 		canvas = new Canvas();
-		canvas.setBounds(0, 0, WIDTH, HEIGHT);
+		canvas.setBounds(0, 0, 400, 400);
 		canvas.setIgnoreRepaint(true);
 
 		panel.add(canvas);	
@@ -39,6 +41,8 @@ public class Window implements Runnable {
 		bufferStrategy = canvas.getBufferStrategy();
 
 		canvas.requestFocus();
+		
+		machine = new Machine();
 	}
 
 	long desiredFPS = 60;
@@ -61,7 +65,7 @@ public class Window implements Runnable {
 
 			lastUpdateTime = currentUpdateTime;
 			currentUpdateTime = System.nanoTime();
-			update((int) ((currentUpdateTime - lastUpdateTime) / (1000 * 1000)));
+			update((int) ( (currentUpdateTime - lastUpdateTime) / (1000 * 1000) ) );
 
 			endLoopTime = System.nanoTime();
 			deltaLoop = endLoopTime - beginLoopTime;
@@ -80,14 +84,16 @@ public class Window implements Runnable {
 
 	private void render() {
 		Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
-		g.clearRect(0, 0, WIDTH, HEIGHT);
+		
 		render(g);
 		g.dispose();
 		bufferStrategy.show();
 	}
 	
+	
+	
 	protected void update(int deltaTime) {
-		
+		machine.update(deltaTime);
 	}
 
 	protected void render(Graphics2D g) {
