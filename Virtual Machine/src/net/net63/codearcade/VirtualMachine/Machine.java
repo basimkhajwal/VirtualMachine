@@ -10,7 +10,9 @@ public class Machine {
 	public Machine(){
 		
 		memory = new Memory(Constants.MEMORY_SIZE);
-		memory.setWord(Constants.SEGMENTS.CODE.getAddress(), 0x0001);
+		
+		memory.setWord(Constants.SEGMENTS.CODE.getAddress(), Integer.parseUnsignedInt("0000000011000011", 2));
+		memory.setWord(Constants.SEGMENTS.CODE.getAddress() + 2, Integer.parseUnsignedInt("0000000100000110", 2));
 		
 		cpu = new CPU(memory);
 		
@@ -22,6 +24,8 @@ public class Machine {
 			cpu.stepInstruction();
 			
 			clockDeltaTime = 0;
+			
+			System.out.println();
 		}
 		
 		clockDeltaTime += deltaTime;
