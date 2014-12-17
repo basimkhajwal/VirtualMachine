@@ -12,6 +12,10 @@ public class Memory implements IMemory{
 		memory = new byte[size];
 		
 		log("Created size: " + size + "bytes");
+		
+		log("Code size: \t" + Constants.SEGMENTS.CODE.getLength());
+		log("Video size: \t" + Constants.SEGMENTS.VIDEO.getLength());
+		log("Data size: \t" + Constants.SEGMENTS.DATA.getLength());
 	}
 	
 	private void log(String message){
@@ -22,7 +26,7 @@ public class Memory implements IMemory{
 		int[] ret = new int[length];
 		
 		for(int i = address; i < address + length; i++){
-			ret[i - address] = memory[address];
+			ret[i - address] = memory[i];
 		}
 		
 		return ret;
