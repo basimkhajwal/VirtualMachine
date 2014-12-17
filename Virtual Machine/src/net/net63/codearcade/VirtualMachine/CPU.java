@@ -48,6 +48,7 @@ public class CPU implements ICPU{
 		pcRegister = Constants.SEGMENTS.CODE.getAddress();
 		
 		log("Created");
+		System.out.println();
 	}
 	
 	private void log(String message){
