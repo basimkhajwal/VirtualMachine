@@ -11,8 +11,20 @@ public class Machine {
 		
 		memory = new Memory(Constants.MEMORY_SIZE);
 		
-		memory.setWord(Constants.SEGMENTS.CODE.getAddress(), Integer.parseUnsignedInt("0000000011000011", 2));
-		memory.setWord(Constants.SEGMENTS.CODE.getAddress() + 2, Integer.parseUnsignedInt("0000000100000110", 2));
+		//Add some test code
+		String[] assemblyCode = new String[]{
+				"0000000000001011",
+				"0000100100000000",
+				"0000000000000101",
+				"0000100100000000"
+		};
+		
+		for(int i = 0; i < assemblyCode.length; i++){
+			memory.setWord(Constants.SEGMENTS.CODE.getAddress() + i * 2, Integer.parseInt(assemblyCode[i], 2));
+		}
+		
+		//Test video memory
+		memory.setByte(Constants.SEGMENTS.VIDEO.getAddress(), Integer.parseInt("11000011", 2));
 		
 		cpu = new CPU(memory);
 		
