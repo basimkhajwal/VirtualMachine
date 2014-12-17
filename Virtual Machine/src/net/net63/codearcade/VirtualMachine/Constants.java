@@ -6,9 +6,14 @@ public class Constants {
 	
 	public static final int MEMORY_SIZE = (int) Math.pow(2, WORD_SIZE - 1);
 	
+	public static final int VIDEO_WIDTH = 100;
+	public static final int VIDEO_HEIGHT = 100;
+	
+	public static final int[] COLOR_VALUES = new int[]{0,64,128,255};
+	
 	public static class SEGMENTS{
-		public static final Segment CODE = new Segment(0, 2000);
-		public static final Segment VIDEO = new Segment(CODE.getEndPoint(), 2000);
+		public static final Segment CODE = new Segment(0, 10000);
+		public static final Segment VIDEO = new Segment(CODE.getEndPoint(), 10000);
 		public static final Segment DATA = new Segment(VIDEO.getEndPoint(), MEMORY_SIZE - VIDEO.getEndPoint() );
 	
 	}
