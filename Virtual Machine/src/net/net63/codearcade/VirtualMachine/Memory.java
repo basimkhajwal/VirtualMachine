@@ -48,13 +48,13 @@ public class Memory implements IMemory{
 	}
 
 	public void setWord(int address, int value) {
-		setByte(address, value & 0xFF);
-		setByte(address + 1, (value >> 8) & 0xFF);
+		setByte(address + 1, value & 0xFF);
+		setByte(address, (value >> 8) & 0xFF);
 		
 	}
 
 	public int getWord(int address) {
-		return memory[address] + memory[address + 1] * 256;
+		return ((memory[address] << 8) & 0xFF00) | ( memory[address + 1] & 0xFF);
 	}
 	
 }

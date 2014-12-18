@@ -13,13 +13,14 @@ public class Machine {
 		
 		//Add some test code
 		String[] assemblyCode = new String[]{
-				"0000000000001011",
-				"0000100100000000",
-				"0000000000000101",
-				"0000100100000000"
+				"1000000000000101",
+				"0110000010010000",
+				"1000000000000010",
+				"0110000010000000"
 		};
 		
 		for(int i = 0; i < assemblyCode.length; i++){
+			
 			memory.setWord(Constants.SEGMENTS.CODE.getAddress() + i * 2, Integer.parseInt(assemblyCode[i], 2));
 		}
 		
