@@ -15,6 +15,7 @@ public class Memory implements IMemory{
 		
 		log("Code size: \t" + Constants.SEGMENTS.CODE.getLength());
 		log("Video size: \t" + Constants.SEGMENTS.VIDEO.getLength());
+		log("Keyboard size: \t" + Constants.SEGMENTS.KEYBOARD.getLength());
 		log("Data size: \t" + Constants.SEGMENTS.DATA.getLength());
 	}
 	

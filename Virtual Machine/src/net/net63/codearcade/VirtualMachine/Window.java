@@ -1,49 +1,80 @@
 package net.net63.codearcade.VirtualMachine;
 
+import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
-public class Window implements Runnable {
+public class Window implements Runnable, KeyListener{
 
 	final int WIDTH = 800;
 	final int HEIGHT = 600;
-	
-	private final int mask = 0b11;
 	
 	JFrame frame;
 	Canvas canvas;
 	BufferStrategy bufferStrategy;
 	
 	Machine machine;
-
+	
+	protected JComponent makeTextPanel(String text) {
+        JPanel panel = new JPanel(false);
+        JLabel filler = new JLabel(text);
+        filler.setHorizontalAlignment(JLabel.CENTER);
+        panel.setLayout(new GridLayout(1, 1));
+        panel.add(filler);
+        return panel;
+    }
+	
+	public void setupGUI(JPanel panel){
+		JTabbedPane tabbedPane = new JTabbedPane();
+		
+		JPanel videoMemory = new JPanel();
+		videoMemory.setSize(canvas.getWidth(), canvas.getHeight());
+		videoMemory.add(canvas);
+		tabbedPane.add("Video Memory", videoMemory);
+		
+		
+		
+		panel.add(tabbedPane, BorderLayout.LINE_START);
+	}
+	
 	public Window() {
 		frame = new JFrame("Virtual Machine");
-
+		
 		JPanel panel = (JPanel) frame.getContentPane();
 		panel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		panel.setLayout(null);
-
+		panel.setLayout(new BorderLayout());
+		
 		canvas = new Canvas();
 		canvas.setBounds(0, 0, 400, 400);
 		canvas.setIgnoreRepaint(true);
+		
+		setupGUI(panel);
 
-		panel.add(canvas);	
+		//panel.add(canvas);	
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setResizable(false);
 		frame.setVisible(true);
-
+		
+		panel.addKeyListener(this);
+		panel.setFocusable(true);
+		panel.requestFocus();
+		panel.requestFocusInWindow();
+		
 		canvas.createBufferStrategy(2);
 		bufferStrategy = canvas.getBufferStrategy();
-
-		canvas.requestFocus();
 		
 		machine = new Machine();
 	}
@@ -87,8 +118,9 @@ public class Window implements Runnable {
 
 	private void render() {
 		Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
-		g.clearRect(0, 0, WIDTH, HEIGHT);
+		
 		render(g);
+		
 		g.dispose();
 		bufferStrategy.show();
 	}
@@ -99,26 +131,26 @@ public class Window implements Runnable {
 		machine.update(deltaTime);
 	}
 
-	protected void render(Graphics2D graphics) {
-		int[] pixels = machine.memory.getLength(Constants.SEGMENTS.VIDEO.getAddress(), Constants.SEGMENTS.VIDEO.getLength());
-		
-		for(int i = 0; i < pixels.length; i++){
-			int pixel = pixels[i];			
-			int r,g,b,a;
-			
-			r = pixel & mask;
-			g = (pixel >> 2) & mask;
-			b = (pixel >> 4) & mask;
-			a = (pixel >> 6) & mask;
-			
-			r = Constants.COLOR_VALUES[r];
-			g = Constants.COLOR_VALUES[g];
-			b = Constants.COLOR_VALUES[b];
-			a = Constants.COLOR_VALUES[a];
-			
-			graphics.setColor(new Color(r, g, b, a));
-			graphics.fillRect((i % 100) * 4, ((int)(i / 100)) * 4, 4, 4);
+	protected void render(Graphics2D g) {
+		if(machine.isUpdated()){
+			g.clearRect(0, 0, WIDTH, HEIGHT);
+			g.drawImage(machine.getVideoBuffer(), 0, 0, 400, 400, 0, 0, 100, 100, null);
 		}
 	}
+
+	@Override
+	public void keyTyped(KeyEvent e) { }
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		machine.keyPressed(e.getKeyCode());
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		machine.keyReleased(e.getKeyCode());
+	}
+	
+	
 
 }
