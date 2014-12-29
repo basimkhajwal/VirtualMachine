@@ -35,7 +35,7 @@ public class Memory implements IMemory{
 
 	public void setLength(int address, int[] values) {
 		for(int i = address;i < address + values.length; i++){
-			memory[address] = (byte) values[i - address];
+			memory[i] = (byte) values[i - address];
 		}
 		
 	}
@@ -45,7 +45,7 @@ public class Memory implements IMemory{
 	}
 
 	public int getByte(int address) {
-		return memory[address];
+		return memory[address & 0x7FFF];
 	}
 
 	public void setWord(int address, int value) {
