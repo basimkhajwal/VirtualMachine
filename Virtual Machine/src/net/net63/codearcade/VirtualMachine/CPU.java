@@ -1,6 +1,6 @@
 package net.net63.codearcade.VirtualMachine;
 
-public class CPU implements ICPU{
+public class CPU{
 	
 	private Memory RAM;
 	

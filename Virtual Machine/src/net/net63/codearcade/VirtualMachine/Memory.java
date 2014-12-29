@@ -1,7 +1,7 @@
 package net.net63.codearcade.VirtualMachine;
 
 
-public class Memory implements IMemory{
+public class Memory {
 	
 	
 	
