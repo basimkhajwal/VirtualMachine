@@ -1,4 +1,4 @@
-package net.net63.codearcade.VirtualMachine;
+package net.net63.codearcade.VirtualMachine.machine;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
