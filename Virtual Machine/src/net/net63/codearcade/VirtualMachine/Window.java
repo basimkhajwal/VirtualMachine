@@ -4,14 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
+import java.io.File;
 
-import javax.swing.JComponent;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -20,22 +23,19 @@ public class Window implements Runnable, KeyListener{
 	final int WIDTH = 800;
 	final int HEIGHT = 600;
 	
-	JFrame frame;
-	Canvas canvas;
-	BufferStrategy bufferStrategy;
+	private JFrame frame;
+	private Canvas canvas;
+	private BufferStrategy bufferStrategy;
 	
-	Machine machine;
+	private boolean machineRunning;
 	
-	protected JComponent makeTextPanel(String text) {
-        JPanel panel = new JPanel(false);
-        JLabel filler = new JLabel(text);
-        filler.setHorizontalAlignment(JLabel.CENTER);
-        panel.setLayout(new GridLayout(1, 1));
-        panel.add(filler);
-        return panel;
-    }
+	private Machine machine;
 	
-	public void setupGUI(JPanel panel){
+	private void newMachineFromFile(File file){
+		
+	}
+	
+	private void setupGUI(JPanel panel){
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
 		JPanel videoMemory = new JPanel();
@@ -46,6 +46,34 @@ public class Window implements Runnable, KeyListener{
 		
 		
 		panel.add(tabbedPane, BorderLayout.LINE_START);
+		
+		
+		JPanel controls = new JPanel();
+		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+		controls.setFocusable(false);
+		
+		JButton loadProgram = new JButton("Load Program");
+		loadProgram.setFocusable(false);
+		loadProgram.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				
+				if(fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
+					newMachineFromFile(fileChooser.getSelectedFile());
+				}
+				
+			}
+		});
+		
+		JButton runProgram = new JButton("Run Program");
+		runProgram.setFocusable(false);
+		
+		controls.add(loadProgram);
+		controls.add(runProgram);
+		
+		panel.add(controls, BorderLayout.LINE_END);
 	}
 	
 	public Window() {
@@ -59,9 +87,7 @@ public class Window implements Runnable, KeyListener{
 		canvas.setBounds(0, 0, 400, 400);
 		canvas.setIgnoreRepaint(true);
 		
-		setupGUI(panel);
-
-		//panel.add(canvas);	
+		setupGUI(panel); 	
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
@@ -76,14 +102,17 @@ public class Window implements Runnable, KeyListener{
 		canvas.createBufferStrategy(2);
 		bufferStrategy = canvas.getBufferStrategy();
 		
+		canvas.setFocusable(false);
+		
 		machine = new Machine();
 	}
 
-	long desiredFPS = 60;
-	long desiredDeltaLoop = (1000 * 1000 * 1000) / desiredFPS;
+	private long desiredFPS = 60;
+	private long desiredDeltaLoop = (1000 * 1000 * 1000) / desiredFPS;
 
 	boolean running = true;
 
+	@Override
 	public void run() {
 
 		long beginLoopTime;
@@ -143,12 +172,16 @@ public class Window implements Runnable, KeyListener{
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		machine.keyPressed(e.getKeyCode());
+		if(machineRunning){
+			machine.keyPressed(e.getKeyCode());
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		machine.keyReleased(e.getKeyCode());
+		if(machineRunning){
+			machine.keyReleased(e.getKeyCode());
+		}
 	}
 	
 	
