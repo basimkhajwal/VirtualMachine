@@ -24,6 +24,7 @@ public class Machine {
 		
 		memory = new Memory(Constants.MEMORY_SIZE);
 		
+		/*
 		//Add some test code
 		String[] assemblyCode = new String[]{
 				"1000000000000101",
@@ -39,6 +40,7 @@ public class Machine {
 		
 		//Test video memory
 		memory.setByte(Constants.SEGMENTS.VIDEO.getAddress(), Integer.parseInt("11000011", 2));
+		*/
 		
 		cpu = new CPU(memory);
 		
@@ -98,6 +100,10 @@ public class Machine {
 		}
 		
 		videoBuffer.flush();
+	}
+	
+	public void loadCode(int[] code) {
+		memory.setLength(Constants.SEGMENTS.CODE.getAddress(), code);
 	}
 	
 	public BufferedImage getVideoBuffer(){
