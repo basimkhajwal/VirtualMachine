@@ -3,7 +3,10 @@ package net.net63.codearcade.VirtualMachine;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -23,7 +26,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
 
 public class Window implements Runnable, KeyListener{
 
@@ -31,6 +37,10 @@ public class Window implements Runnable, KeyListener{
 	final int HEIGHT = 600;
 	
 	private JFrame frame;
+	private JTable memoryTable;
+	private JButton loadProgram, runProgram, pauseProgram, stopProgram;
+	
+	private MyModel tableModel;
 	private Canvas canvas;
 	private BufferStrategy bufferStrategy;
 	
@@ -64,6 +74,7 @@ public class Window implements Runnable, KeyListener{
 			
 			//The machine is now loaded
 			machineSetup = true;
+			machineRunning = false;
 			
 		} catch (FileNotFoundException e) {
 			JOptionPane.showMessageDialog(frame, "Error loading this file, try again");
@@ -86,20 +97,33 @@ public class Window implements Runnable, KeyListener{
 		JPanel videoMemory = new JPanel();
 		videoMemory.setSize(canvas.getWidth(), canvas.getHeight());
 		videoMemory.add(canvas);
-		tabbedPane.add("Memory", videoMemory);
+		tabbedPane.add("Video Memory", videoMemory);
 		
-		panel.add(tabbedPane, BorderLayout.LINE_START);
+		JPanel allMemory = new JPanel();
+		
+		
+		tableModel = new MyModel();
+		
+		memoryTable = new JTable(tableModel);
+		memoryTable.setPreferredScrollableViewportSize(new Dimension(canvas.getWidth(), canvas.getHeight()));
+		memoryTable.setFillsViewportHeight(true);
+		
+		allMemory.add(new JScrollPane(memoryTable));
+		
+		tabbedPane.add("Memory & Registers", allMemory);
+		
+		panel.add(tabbedPane, BorderLayout.NORTH);
 		
 		JPanel controls = new JPanel();
 		
 		GridLayout grid = new GridLayout(4, 1);
-		grid.setHgap(100);
+		grid.setVgap(100);
 		
-		controls.setLayout(grid);
+		controls.setLayout(new FlowLayout());
 		controls.setSize(800 - tabbedPane.getWidth(), controls.getHeight());
 		controls.setFocusable(false);
 		
-		JButton loadProgram = new JButton("Load Program");
+		loadProgram = new JButton("Load Program");
 		loadProgram.setFocusable(false);
 		loadProgram.addActionListener(new ActionListener() {
 			
@@ -109,30 +133,67 @@ public class Window implements Runnable, KeyListener{
 				
 				if(fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
 					newMachineFromFile(fileChooser.getSelectedFile());
+					
+					runProgram.setEnabled(true);
 				}
 				
 			}
 		});
+		loadProgram.setAlignmentY(Component.TOP_ALIGNMENT);
 		
-		JButton runProgram = new JButton("Run Program");
+		runProgram = new JButton("Run Program");
 		runProgram.setFocusable(false);
+		runProgram.setEnabled(false);
 		runProgram.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(machineSetup){
 					machineRunning = true;
+					runProgram.setEnabled(false);
+					pauseProgram.setEnabled(true);
+					stopProgram.setEnabled(true);
 				}else{
 					JOptionPane.showMessageDialog(frame, "Please load a machine first!");
 				}
 			}
 		});
+		runProgram.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
-		JButton pauseProgram = new JButton("Pause Program");
+		pauseProgram = new JButton("Pause Program");
 		pauseProgram.setFocusable(false);
+		pauseProgram.setEnabled(false);
+		pauseProgram.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				machineRunning = false;
+				
+				runProgram.setEnabled(true);
+				pauseProgram.setEnabled(false);
+			}
+			
+		});
+		pauseProgram.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
-		JButton stopProgram = new JButton("Stop Program");
+		stopProgram = new JButton("Close Program");
 		stopProgram.setFocusable(false);
+		stopProgram.setEnabled(false);
+		stopProgram.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				machineRunning = false;
+				machineSetup = false;
+				machine = null;
+				
+				runProgram.setEnabled(false);
+				stopProgram.setEnabled(false);
+				pauseProgram.setEnabled(false);
+				loadProgram.setEnabled(true);
+			}
+		});
+		stopProgram.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		controls.add(loadProgram);
 		controls.add(runProgram);
@@ -142,6 +203,14 @@ public class Window implements Runnable, KeyListener{
 		panel.add(controls, BorderLayout.CENTER);
 	}
 	
+	private void updateTableData(){
+		if(machine != null){
+			machine.setTableData(tableModel);
+			
+			memoryTable.repaint();
+		}
+	}
+	
 	public Window() {
 		frame = new JFrame("Virtual Machine");
 		
@@ -149,6 +218,7 @@ public class Window implements Runnable, KeyListener{
 		machineSetup = false;
 		
 		JPanel panel = (JPanel) frame.getContentPane();
+		
 		setupGUI(panel); 	
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -184,9 +254,9 @@ public class Window implements Runnable, KeyListener{
 
 		while (running) {
 			beginLoopTime = System.nanoTime();
-
-			render();
-
+			if(canvas.isShowing()){
+				render();
+			}
 			lastUpdateTime = currentUpdateTime;
 			currentUpdateTime = System.nanoTime();
 			update((int) ( (currentUpdateTime - lastUpdateTime) / (1000 * 1000) ) );
@@ -228,9 +298,11 @@ public class Window implements Runnable, KeyListener{
 		
 		if(machineRunning && machine.isUpdated()){
 			g.drawImage(machine.getVideoBuffer(), 0, 0, 400, 400, 0, 0, 100, 100, null);
+			updateTableData();
 		}else if(!machineRunning){
 			g.setColor(Color.RED);
-			g.drawString("Machine Not Loaded", 50, 50);
+			g.setFont(Font.getFont("Serif"));
+			g.drawString("Machine Not Running", 50, 50);
 		}
 	}
 
@@ -251,6 +323,44 @@ public class Window implements Runnable, KeyListener{
 		}
 	}
 	
-	
+	private class MyModel extends AbstractTableModel {
+		
+		private static final long serialVersionUID = -6604108493941342160L;
+
+		private final String[] columns = new String[]{
+				"Address",
+				"Decimal",
+				"Hexadecimal",
+				"Binary"
+		};
+		
+		private Object[][] tableData = new Object[Constants.MEMORY_SIZE][columns.length];
+		
+		@Override
+		public int getRowCount() {
+			return tableData.length;
+		}
+
+		@Override
+		public int getColumnCount() {
+			return tableData[0].length;
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			return tableData[rowIndex][columnIndex];
+		}
+		
+		@Override
+		public void setValueAt(Object value, int rowIndex, int columnIndex){
+			super.setValueAt(value, rowIndex, columnIndex);
+			
+			tableData[rowIndex][columnIndex] = value;
+			
+			fireTableCellUpdated(rowIndex, columnIndex);
+		}
+		
+		
+	}
 
 }
