@@ -3,6 +3,8 @@ package net.net63.codearcade.VirtualMachine;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import javax.swing.table.AbstractTableModel;
+
 public class Machine {
 	
 	private Memory memory;
@@ -23,25 +25,6 @@ public class Machine {
 		videoBuffer = new BufferedImage(100, 100, BufferedImage.TYPE_4BYTE_ABGR);
 		
 		memory = new Memory(Constants.MEMORY_SIZE);
-		
-		/*
-		//Add some test code
-		String[] assemblyCode = new String[]{
-				"1000000000000101",
-				"0110000010010000",
-				"1000000000000010",
-				"0110000010000000"
-		};
-		
-		for(int i = 0; i < assemblyCode.length; i++){
-			
-			memory.setWord(Constants.SEGMENTS.CODE.getAddress() + i * 2, Integer.parseInt(assemblyCode[i], 2));
-		}
-		
-		//Test video memory
-		memory.setByte(Constants.SEGMENTS.VIDEO.getAddress(), Integer.parseInt("11000011", 2));
-		*/
-		
 		cpu = new CPU(memory);
 		
 		clockDeltaTime = 0;
@@ -94,8 +77,6 @@ public class Machine {
 			b = Constants.COLOR_VALUES[b];
 			a = Constants.COLOR_VALUES[a];
 			
-			
-			
 			videoBuffer.setRGB((i % 100), (int) (i / 100), (new Color(r, g, b, a)).getRGB());
 		}
 		
@@ -122,5 +103,17 @@ public class Machine {
 	public void keyReleased(int keycode){
 		keys[keycode] = false;
 		keyChanged = false;
+	}
+
+	public void setTableData(AbstractTableModel table) {
+		
+		for(int i = 0; i < table.getRowCount(); i++){
+			int data = memory.getByte(i);
+			
+			table.setValueAt(new Integer(i), i, 0);
+			table.setValueAt(new Integer(data), i, 1);
+			table.setValueAt("0x" + String.format("%2sh", Integer.toUnsignedString(data, 16) ) .replace(' ', '0'), i, 2);
+			table.setValueAt("0b" + String.format("%8sh", Integer.toUnsignedString(data, 2) ) .replace(' ', '0'), i, 3);
+		}
 	}
 }

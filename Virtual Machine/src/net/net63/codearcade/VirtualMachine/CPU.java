@@ -137,7 +137,7 @@ public class CPU implements ICPU{
 			
 			//If A[M] bit is set then store it in the A[M]-register
 			if(getBit(currentInstruction, BITS.D3)){
-				RAM.setWord(addressRegister, (short) out);
+				RAM.setWord(addressRegister & 0x7FFF, (short) out);
 			}
 			
 			boolean jump = false;
@@ -181,4 +181,19 @@ public class CPU implements ICPU{
 		pcRegister += 2;
 	}
 	
+	public int getProgramCounter(){
+		return pcRegister;
+	}
+	
+	public int getAddressRegister(){
+		return addressRegister;
+	}
+	
+	public int getDataRegister(){
+		return dataRegister;
+	}
+	
+	public int getCurrentInstruction(){
+		return currentInstruction;
+	}
 }
