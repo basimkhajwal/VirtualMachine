@@ -3,6 +3,7 @@ package net.net63.codearcade.VirtualMachine.machine;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JTextPane;
 import javax.swing.table.AbstractTableModel;
 
 public class Machine {
@@ -20,12 +21,15 @@ public class Machine {
 	public boolean[] keys;
 	private boolean keyChanged;
 	
-	public Machine(){
+	private JTextPane logText;
+	
+	public Machine(JTextPane logText){
+		this.logText = logText;
 		
-		videoBuffer = new BufferedImage(100, 100, BufferedImage.TYPE_4BYTE_ABGR);
+		videoBuffer = new BufferedImage(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
 		
-		memory = new Memory(Constants.MEMORY_SIZE);
-		cpu = new CPU(memory);
+		memory = new Memory(Constants.MEMORY_SIZE, logText);
+		cpu = new CPU(memory, logText);
 		
 		clockDeltaTime = 0;
 		
@@ -42,9 +46,9 @@ public class Machine {
 			cpu.stepInstruction();
 			updateOutputBuffers();
 			
-			clockDeltaTime = 0;
+			logText.setText(logText.getText() + "\n");
 			
-			System.out.println();
+			clockDeltaTime = 0;
 		}
 		
 		clockDeltaTime += deltaTime;
@@ -77,7 +81,7 @@ public class Machine {
 			b = Constants.COLOR_VALUES[b];
 			a = Constants.COLOR_VALUES[a];
 			
-			videoBuffer.setRGB((i % 100), (int) (i / 100), (new Color(r, g, b, a)).getRGB());
+			videoBuffer.setRGB((i % Constants.VIDEO_WIDTH), (int) (i / Constants.VIDEO_HEIGHT), (new Color(r, g, b, a)).getRGB());
 		}
 		
 		videoBuffer.flush();
