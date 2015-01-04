@@ -1,5 +1,7 @@
 package net.net63.codearcade.VirtualMachine.machine;
 
+import javax.swing.JTextPane;
+
 public class CPU{
 	
 	private Memory RAM;
@@ -42,9 +44,11 @@ public class CPU{
 	
 	private int currentInstruction;
 	
+	private JTextPane logText;
 	
-	public CPU(Memory memory){
+	public CPU(Memory memory, JTextPane logText){
 		this.RAM = memory;
+		this.logText = logText;
 		
 		pcRegister = Constants.SEGMENTS.CODE.getAddress();
 		
@@ -53,7 +57,7 @@ public class CPU{
 	}
 	
 	private void log(String message){
-		System.out.println("CPU: \t\t" + message);
+		logText.setText(logText.getText() + "\nCPU: \t\t" + message);
 	}
 	
 	private void execute(){
