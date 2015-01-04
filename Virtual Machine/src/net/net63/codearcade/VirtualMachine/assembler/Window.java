@@ -59,13 +59,17 @@ public class Window implements Runnable{
 		
 		JPanel controlsPanel = new JPanel();
 		
-		JButton compile = new JButton("Compile Program");
+		compile = new JButton("Compile Program");
+		compile.setEnabled(false);
 		
-		JButton saveAssembly = new JButton("Save Assembly");
+		saveAssembly = new JButton("Save Assembly");
+		saveAssembly.setEnabled(false);
 		
-		JButton saveBinary = new JButton("Save Binary");
+		saveBinary = new JButton("Save Binary");
+		saveBinary.setEnabled(false);
 		
-		JButton loadAssembly = new JButton("Load Assembly Program");
+		loadAssembly = new JButton("Load Assembly Program");
+		loadAssembly.setEnabled(true);
 		
 		controlsPanel.add(loadAssembly);
 		controlsPanel.add(saveAssembly);
