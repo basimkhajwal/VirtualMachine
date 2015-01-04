@@ -68,7 +68,7 @@ public class Window implements Runnable, KeyListener{
 			reader.close();
 			
 			//Create a new machine
-			machine = new Machine();
+			machine = new Machine(logText);
 			
 			//Put the code into memory
 			machine.loadCode(code);
@@ -90,7 +90,7 @@ public class Window implements Runnable, KeyListener{
 		panel.setLayout(new BorderLayout());
 		
 		canvas = new Canvas();
-		canvas.setBounds(0, 0, 400, 400);
+		canvas.setBounds(0, 0, 450, 450);
 		canvas.setIgnoreRepaint(true);
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
@@ -214,6 +214,7 @@ public class Window implements Runnable, KeyListener{
 	private void updateTableData(){
 		if(machine != null){
 			machine.setTableData(tableModel);
+			tableModel.fireTableDataChanged();
 			
 			memoryTable.repaint();
 		}
@@ -233,7 +234,6 @@ public class Window implements Runnable, KeyListener{
 		frame.pack();
 		frame.setResizable(false);
 		frame.setVisible(true);
-		
 		
 		panel.addKeyListener(this);
 		panel.setFocusable(true);
@@ -305,7 +305,7 @@ public class Window implements Runnable, KeyListener{
 		g.clearRect(0, 0, WIDTH, HEIGHT);
 		
 		if(machineRunning && machine.isUpdated()){
-			g.drawImage(machine.getVideoBuffer(), 0, 0, 400, 400, 0, 0, 100, 100, null);
+			g.drawImage(machine.getVideoBuffer(), 0, 0, 450, 450, 0, 0, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, null);
 			updateTableData();
 		}else if(!machineRunning){
 			g.setColor(Color.RED);
@@ -348,7 +348,12 @@ public class Window implements Runnable, KeyListener{
 		public int getRowCount() {
 			return tableData.length;
 		}
-
+		
+		@Override
+		public String getColumnName(int col){
+			return columns[col];
+		}
+		
 		@Override
 		public int getColumnCount() {
 			return tableData[0].length;
