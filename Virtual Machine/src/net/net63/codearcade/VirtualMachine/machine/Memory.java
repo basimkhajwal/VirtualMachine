@@ -1,5 +1,7 @@
 package net.net63.codearcade.VirtualMachine.machine;
 
+import javax.swing.JTextPane;
+
 
 public class Memory {
 	
@@ -7,9 +9,11 @@ public class Memory {
 	
 	private byte[] memory;
 	
+	private JTextPane logText;
 	
-	public Memory(int size){
+	public Memory(int size, JTextPane logText){
 		memory = new byte[size];
+		this.logText = logText;
 		
 		log("Created size: " + size + "bytes");
 		
@@ -20,7 +24,7 @@ public class Memory {
 	}
 	
 	private void log(String message){
-		System.out.println("Memory: \t" + message);
+		logText.setText(logText.getText() + "\nMemory: \t" + message);
 	}
 	
 	public int[] getLength(int address, int length){
