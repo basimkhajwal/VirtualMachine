@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.table.AbstractTableModel;
 
 public class Window implements Runnable, KeyListener{
@@ -38,6 +39,7 @@ public class Window implements Runnable, KeyListener{
 	private JFrame frame;
 	private JTable memoryTable;
 	private JButton loadProgram, runProgram, pauseProgram, stopProgram;
+	private JTextPane logText;
 	
 	private MyModel tableModel;
 	private Canvas canvas;
@@ -100,16 +102,23 @@ public class Window implements Runnable, KeyListener{
 		
 		JPanel allMemory = new JPanel();
 		
-		
 		tableModel = new MyModel();
 		
 		memoryTable = new JTable(tableModel);
-		memoryTable.setPreferredScrollableViewportSize(new Dimension(canvas.getWidth(), canvas.getHeight()));
+		memoryTable.setPreferredScrollableViewportSize(new Dimension(750, 450));
 		memoryTable.setFillsViewportHeight(true);
 		
 		allMemory.add(new JScrollPane(memoryTable));
 		
 		tabbedPane.add("Memory & Registers", allMemory);
+		
+		JPanel logPanel = new JPanel(new BorderLayout());
+		logText = new JTextPane();
+		logText.setEditable(false);
+		
+		logPanel.add(logText, BorderLayout.CENTER);
+		
+		tabbedPane.add("Log", logPanel);
 		
 		panel.add(tabbedPane, BorderLayout.NORTH);
 		
@@ -361,5 +370,4 @@ public class Window implements Runnable, KeyListener{
 		
 		
 	}
-
 }
