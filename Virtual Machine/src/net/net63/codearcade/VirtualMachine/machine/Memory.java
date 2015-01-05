@@ -45,7 +45,7 @@ public class Memory {
 	}
 
 	public void setByte(int address, int value) {
-		memory[address] = (byte) value;
+		memory[address & 0x7FFF] = (byte) value;
 	}
 
 	public int getByte(int address) {
