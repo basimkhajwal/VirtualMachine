@@ -44,18 +44,22 @@ public class Machine {
 		justUpdated = false;
 		
 		if(clockDeltaTime > clockTime){
-			justUpdated = true;
-			
-			updateInputBuffers();
-			cpu.stepInstruction();
-			updateOutputBuffers();
-			
-			logText.setText(logText.getText() + "\n");
-			
-			clockDeltaTime = 0;
+			stepInstruction();
 		}
 		
 		clockDeltaTime += deltaTime;
+	}
+	
+	public void stepInstruction(){
+		justUpdated = true;
+		
+		updateInputBuffers();
+		cpu.stepInstruction();
+		updateOutputBuffers();
+		
+		logText.setText(logText.getText() + "\n");
+		
+		clockDeltaTime = 0;
 	}
 	
 	private void updateInputBuffers(){
