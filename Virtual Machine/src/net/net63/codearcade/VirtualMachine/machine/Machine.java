@@ -116,7 +116,7 @@ public class Machine {
 	public void setTableData(AbstractTableModel table) {
 		
 		for(int i = 0; i < table.getRowCount(); i++){
-			int data = memory.getByte(i);
+			int data = memory.getByte(i) & 0xFFFF;
 			
 			table.setValueAt(new Integer(i), i, 0);
 			table.setValueAt(new Integer(data), i, 1);
