@@ -20,15 +20,21 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.AbstractTableModel;
 
 public class Window implements Runnable, KeyListener{
@@ -40,6 +46,9 @@ public class Window implements Runnable, KeyListener{
 	private JTable memoryTable;
 	private JButton loadProgram, runProgram, pauseProgram, stopProgram;
 	private JTextPane logText;
+	private JTabbedPane tabbedPane;
+	private JSlider frameRateSlider;
+	private JLabel addressLabel, dataLabel, pcLabel;
 	
 	private MyModel tableModel;
 	private Canvas canvas;
@@ -93,7 +102,7 @@ public class Window implements Runnable, KeyListener{
 		canvas.setBounds(0, 0, 450, 450);
 		canvas.setIgnoreRepaint(true);
 		
-		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		
 		JPanel videoMemory = new JPanel();
 		videoMemory.setSize(canvas.getWidth(), canvas.getHeight());
@@ -105,16 +114,32 @@ public class Window implements Runnable, KeyListener{
 		tableModel = new MyModel();
 		
 		memoryTable = new JTable(tableModel);
-		memoryTable.setPreferredScrollableViewportSize(new Dimension(700, 450));
+		memoryTable.setPreferredScrollableViewportSize(new Dimension(400, 350));
 		memoryTable.setFillsViewportHeight(true);
 		
-		allMemory.add(new JScrollPane(memoryTable), BorderLayout.CENTER);
+		allMemory.add(new JScrollPane(memoryTable), BorderLayout.NORTH);
 		
 		JPanel registerView = new JPanel();
 		registerView.setLayout(new BorderLayout());
+		registerView.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Registers", TitledBorder.CENTER, TitledBorder.TOP));
 		
+		GridLayout grid = new GridLayout(3,1);
+		grid.setVgap(10);
 		
-		allMemory.add(registerView, BorderLayout.SOUTH);
+		JPanel registerGrid = new JPanel(grid);
+		registerGrid.setBorder(new EmptyBorder(10, 50, 10, 0));
+		
+		addressLabel = new JLabel("Address Register:");
+		dataLabel = new JLabel("Data Register: ");
+		pcLabel = new JLabel("Program Counter Register: ");
+		
+		registerGrid.add(addressLabel);
+		registerGrid.add(dataLabel);
+		registerGrid.add(pcLabel);
+		
+		registerView.add(registerGrid, BorderLayout.CENTER);
+		
+		allMemory.add(registerView, BorderLayout.CENTER);
 		
 		tabbedPane.add("Memory & Registers", allMemory);
 		
@@ -129,9 +154,7 @@ public class Window implements Runnable, KeyListener{
 		panel.add(tabbedPane, BorderLayout.NORTH);
 		
 		JPanel controls = new JPanel();
-		
-		GridLayout grid = new GridLayout(4, 1);
-		grid.setVgap(100);
+		controls.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Controls", TitledBorder.CENTER, TitledBorder.TOP));
 		
 		controls.setLayout(new FlowLayout());
 		controls.setSize(800 - tabbedPane.getWidth(), controls.getHeight());
@@ -167,6 +190,7 @@ public class Window implements Runnable, KeyListener{
 					runProgram.setEnabled(false);
 					pauseProgram.setEnabled(true);
 					stopProgram.setEnabled(true);
+					
 				}else{
 					JOptionPane.showMessageDialog(frame, "Please load a machine first!");
 				}
@@ -299,6 +323,17 @@ public class Window implements Runnable, KeyListener{
 		bufferStrategy.show();
 	}
 	
+	private void updateRegisterLabels(){
+		int[] data = machine.getRegisterValues();
+		
+		pcLabel.setText("Program Counter Register: " + data[0]);
+		addressLabel.setText("Address Register: " + data[1]);
+		dataLabel.setText("Data Register: " + data[2]);
+		
+		pcLabel.repaint();
+		addressLabel.repaint();
+		dataLabel.repaint();
+	}
 	
 	
 	protected void update(int deltaTime) {
@@ -312,7 +347,9 @@ public class Window implements Runnable, KeyListener{
 		
 		if(machineRunning && machine.isUpdated()){
 			g.drawImage(machine.getVideoBuffer(), 0, 0, 450, 450, 0, 0, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, null);
+			
 			updateTableData();
+			updateRegisterLabels();
 		}else if(!machineRunning){
 			g.setColor(Color.RED);
 			g.setFont(Font.getFont("Serif"));
