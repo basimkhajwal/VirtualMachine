@@ -329,16 +329,17 @@ public class Window implements Runnable, KeyListener{
 		pcLabel.setText("Program Counter Register: " + data[0]);
 		addressLabel.setText("Address Register: " + data[1]);
 		dataLabel.setText("Data Register: " + data[2]);
-		
-		pcLabel.repaint();
-		addressLabel.repaint();
-		dataLabel.repaint();
 	}
 	
 	
 	protected void update(int deltaTime) {
 		if(machineRunning){
 			machine.update(deltaTime);
+			
+			if(machine.isUpdated()){
+				updateTableData();
+				updateRegisterLabels();
+			}
 		}
 	}
 
@@ -348,13 +349,12 @@ public class Window implements Runnable, KeyListener{
 		if(machineRunning && machine.isUpdated()){
 			g.drawImage(machine.getVideoBuffer(), 0, 0, 450, 450, 0, 0, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, null);
 			
-			updateTableData();
-			updateRegisterLabels();
 		}else if(!machineRunning){
 			g.setColor(Color.RED);
 			g.setFont(Font.getFont("Serif"));
 			g.drawString("Machine Not Running", 50, 50);
 		}
+		
 	}
 
 	@Override
