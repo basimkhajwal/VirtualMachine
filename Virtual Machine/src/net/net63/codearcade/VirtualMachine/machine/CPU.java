@@ -23,21 +23,21 @@ public class CPU{
 	
 	private class BITS{
 		//Instruction bits
-		public static final int INSTRUCTION_TYPE = 15;
-		public static final int A = 12;
-		public static final int C1 = 11;
-		public static final int C2 = 10;
-		public static final int C3 = 9;
-		public static final int C4 = 8;
-		public static final int C5 = 7;
-		public static final int C6 = 6;
-		public static final int D1 = 5;
-		public static final int D2 = 4;
-		public static final int D3 = 3;
-		public static final int J1 = 2;
-		public static final int J2 = 1;
-		public static final int J3 = 0;
-		
+		public static final int INSTRUCTION_TYPE = 15; 		// If set then it is a C-type instruction otherwise an A-type
+		public static final int A = 12; 					// Whether to use A or memory at A
+		public static final int C1 = 11; 					// Set A to 0
+		public static final int C2 = 10; 					// Set A to NOT A
+		public static final int C3 = 9; 					// Set B to 0
+		public static final int C4 = 8; 					// Set B to NOT B
+		public static final int C5 = 7; 					// If set OUT is A + B otherwise it is A & B
+		public static final int C6 = 6;						// Set OUT to NOT OUT
+		public static final int D1 = 5;						// Set AdressRegister to OUT
+		public static final int D2 = 4;						// Set DataRegister to OUT
+		public static final int D3 = 3;						// Set Memory at A to OUT
+		public static final int J1 = 2;						// JUMP if less than
+		public static final int J2 = 1;						// JUMP if zero
+		public static final int J3 = 0;						// JUMP if greater than
+															// JUMP changes PC to value at A
 		//General purpose bits
 		public static final int SHORT_SIGN_BIT = 15;
 	}
@@ -102,12 +102,12 @@ public class CPU{
 			
 			//If bit is set then set B to 0
 			if(getBit(currentInstruction, BITS.C3)){
-				a = 0;
+				b = 0;
 			}
 			
 			//If bit is set then set B to not B and mask to make sure that unsigned shorts don't become negative
 			if(getBit(currentInstruction, BITS.C4)){
-				a = (~a) & MASKS.SHORT;
+				b = (~b) & MASKS.SHORT;
 			}
 			
 			//If function is set then ADD A and B otherwise AND them
