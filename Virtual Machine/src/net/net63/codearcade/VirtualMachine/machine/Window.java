@@ -146,6 +146,7 @@ public class Window implements Runnable, KeyListener{
 		JPanel logPanel = new JPanel(new BorderLayout());
 		logText = new JTextPane();
 		logText.setEditable(false);
+		logText.setMaximumSize(new Dimension(WIDTH - 30,600));
 		
 		logPanel.add(new JScrollPane(logText), BorderLayout.CENTER);
 		
