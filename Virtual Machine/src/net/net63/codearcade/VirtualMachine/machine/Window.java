@@ -147,7 +147,7 @@ public class Window implements Runnable, KeyListener{
 		logText = new JTextPane();
 		logText.setEditable(false);
 		
-		logPanel.add(logText, BorderLayout.CENTER);
+		logPanel.add(new JScrollPane(logText), BorderLayout.CENTER);
 		
 		tabbedPane.add("Log", logPanel);
 		
