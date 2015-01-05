@@ -59,6 +59,7 @@ public class Memory {
 	}
 
 	public int getWord(int address) {
+		address &= 0x7FFF;
 		return ((memory[address] << 8) & 0xFF00) | ( memory[address + 1] & 0xFF);
 	}
 	
