@@ -100,15 +100,21 @@ public class Window implements Runnable, KeyListener{
 		videoMemory.add(canvas);
 		tabbedPane.add("Video Memory", videoMemory);
 		
-		JPanel allMemory = new JPanel();
+		JPanel allMemory = new JPanel(new BorderLayout());
 		
 		tableModel = new MyModel();
 		
 		memoryTable = new JTable(tableModel);
-		memoryTable.setPreferredScrollableViewportSize(new Dimension(750, 450));
+		memoryTable.setPreferredScrollableViewportSize(new Dimension(700, 450));
 		memoryTable.setFillsViewportHeight(true);
 		
-		allMemory.add(new JScrollPane(memoryTable));
+		allMemory.add(new JScrollPane(memoryTable), BorderLayout.CENTER);
+		
+		JPanel registerView = new JPanel();
+		registerView.setLayout(new BorderLayout());
+		
+		
+		allMemory.add(registerView, BorderLayout.SOUTH);
 		
 		tabbedPane.add("Memory & Registers", allMemory);
 		

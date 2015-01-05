@@ -23,6 +23,8 @@ public class Machine {
 	
 	private JTextPane logText;
 	
+	private float clockTime;
+	
 	public Machine(JTextPane logText){
 		this.logText = logText;
 		
@@ -34,12 +36,14 @@ public class Machine {
 		clockDeltaTime = 0;
 		
 		keys = new boolean[300];
+		
+		clockTime = Constants.CLOCK_TIME;
 	}
 	
 	public void update(int deltaTime){
 		justUpdated = false;
 		
-		if(clockDeltaTime > Constants.CLOCK_TIME){
+		if(clockDeltaTime > clockTime){
 			justUpdated = true;
 			
 			updateInputBuffers();
@@ -119,5 +123,17 @@ public class Machine {
 			table.setValueAt("0x" + String.format("%2sh", Integer.toUnsignedString(data, 16) ) .replace(' ', '0'), i, 2);
 			table.setValueAt("0b" + String.format("%8sh", Integer.toUnsignedString(data, 2) ) .replace(' ', '0'), i, 3);
 		}
+	}
+
+	public float getClockTime() {
+		return clockTime;
+	}
+
+	public void setClockTime(float clockTime) {
+		this.clockTime = clockTime;
+	}
+	
+	public int[] getRegisterValues(){
+		return new int[]{cpu.getProgramCounter(), cpu.getAddressRegister(), cpu.getDataRegister()};
 	}
 }
