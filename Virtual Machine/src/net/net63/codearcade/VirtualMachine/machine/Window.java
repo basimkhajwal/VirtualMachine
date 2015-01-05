@@ -39,12 +39,12 @@ import javax.swing.table.AbstractTableModel;
 
 public class Window implements Runnable, KeyListener{
 
-	final int WIDTH = 800;
+	final int WIDTH = 1000;
 	final int HEIGHT = 600;
 	
 	private JFrame frame;
 	private JTable memoryTable;
-	private JButton loadProgram, runProgram, pauseProgram, stopProgram;
+	private JButton loadProgram, runProgram, pauseProgram, stopProgram, stepProgram;
 	private JTextPane logText;
 	private JTabbedPane tabbedPane;
 	private JSlider frameRateSlider;
@@ -155,10 +155,22 @@ public class Window implements Runnable, KeyListener{
 		
 		JPanel controls = new JPanel();
 		controls.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Controls", TitledBorder.CENTER, TitledBorder.TOP));
-		
 		controls.setLayout(new FlowLayout());
 		controls.setSize(800 - tabbedPane.getWidth(), controls.getHeight());
 		controls.setFocusable(false);
+				
+		frameRateSlider = new JSlider(1, 50, 1);
+		
+		stepProgram = new JButton("Step Instruction");
+		stepProgram.setFocusable(false);
+		stepProgram.setEnabled(false);
+		stepProgram.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				machine.stepInstruction();
+			}
+		});
 		
 		loadProgram = new JButton("Load Program");
 		loadProgram.setFocusable(false);
@@ -171,7 +183,12 @@ public class Window implements Runnable, KeyListener{
 				if(fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
 					newMachineFromFile(fileChooser.getSelectedFile());
 					
-					runProgram.setEnabled(true);
+					if(machineSetup){
+						loadProgram.setEnabled(false);
+						stopProgram.setEnabled(true);
+						runProgram.setEnabled(true);
+						stepProgram.setEnabled(true);
+					}
 				}
 				
 			}
@@ -190,6 +207,7 @@ public class Window implements Runnable, KeyListener{
 					runProgram.setEnabled(false);
 					pauseProgram.setEnabled(true);
 					stopProgram.setEnabled(true);
+					stepProgram.setEnabled(false);
 					
 				}else{
 					JOptionPane.showMessageDialog(frame, "Please load a machine first!");
@@ -209,6 +227,7 @@ public class Window implements Runnable, KeyListener{
 				
 				runProgram.setEnabled(true);
 				pauseProgram.setEnabled(false);
+				stepProgram.setEnabled(true);
 			}
 			
 		});
@@ -228,13 +247,17 @@ public class Window implements Runnable, KeyListener{
 				runProgram.setEnabled(false);
 				stopProgram.setEnabled(false);
 				pauseProgram.setEnabled(false);
+				stepProgram.setEnabled(false);
+				
 				loadProgram.setEnabled(true);
 			}
 		});
 		stopProgram.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		controls.add(loadProgram);
+		controls.add(frameRateSlider);
 		controls.add(runProgram);
+		controls.add(stepProgram);
 		controls.add(pauseProgram);
 		controls.add(stopProgram);
 		
