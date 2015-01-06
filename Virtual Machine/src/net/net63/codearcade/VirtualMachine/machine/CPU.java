@@ -1,6 +1,6 @@
 package net.net63.codearcade.VirtualMachine.machine;
 
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 
 public class CPU{
 	
@@ -44,9 +44,9 @@ public class CPU{
 	
 	private int currentInstruction;
 	
-	private JTextPane logText;
+	private JTextArea logText;
 	
-	public CPU(Memory memory, JTextPane logText){
+	public CPU(Memory memory, JTextArea logText){
 		this.RAM = memory;
 		this.logText = logText;
 		

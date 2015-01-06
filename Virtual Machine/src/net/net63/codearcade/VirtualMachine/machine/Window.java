@@ -31,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -45,7 +46,7 @@ public class Window implements Runnable, KeyListener{
 	private JFrame frame;
 	private JTable memoryTable;
 	private JButton loadProgram, runProgram, pauseProgram, stopProgram, stepProgram;
-	private JTextPane logText;
+	private JTextArea logText;
 	private JTabbedPane tabbedPane;
 	private JSlider frameRateSlider;
 	private JLabel addressLabel, dataLabel, pcLabel;
@@ -103,6 +104,7 @@ public class Window implements Runnable, KeyListener{
 		canvas.setIgnoreRepaint(true);
 		
 		tabbedPane = new JTabbedPane();
+		tabbedPane.setMaximumSize(new Dimension(WIDTH, 450));
 		
 		JPanel videoMemory = new JPanel();
 		videoMemory.setSize(canvas.getWidth(), canvas.getHeight());
@@ -144,11 +146,11 @@ public class Window implements Runnable, KeyListener{
 		tabbedPane.add("Memory & Registers", allMemory);
 		
 		JPanel logPanel = new JPanel(new BorderLayout());
-		logText = new JTextPane();
+		logText = new JTextArea(11,30);
 		logText.setEditable(false);
 		logText.setMaximumSize(new Dimension(WIDTH - 30,600));
 		
-		logPanel.add(new JScrollPane(logText), BorderLayout.CENTER);
+		logPanel.add(new JScrollPane(logText));
 		
 		tabbedPane.add("Log", logPanel);
 		

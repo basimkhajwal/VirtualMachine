@@ -1,6 +1,6 @@
 package net.net63.codearcade.VirtualMachine.machine;
 
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 
 
 public class Memory {
@@ -9,9 +9,9 @@ public class Memory {
 	
 	private byte[] memory;
 	
-	private JTextPane logText;
+	private JTextArea logText;
 	
-	public Memory(int size, JTextPane logText){
+	public Memory(int size, JTextArea logText){
 		memory = new byte[size];
 		this.logText = logText;
 		

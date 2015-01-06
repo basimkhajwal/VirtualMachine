@@ -3,7 +3,7 @@ package net.net63.codearcade.VirtualMachine.machine;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
 public class Machine {
@@ -21,11 +21,11 @@ public class Machine {
 	public boolean[] keys;
 	private boolean keyChanged;
 	
-	private JTextPane logText;
+	private JTextArea logText;
 	
 	private float clockTime;
 	
-	public Machine(JTextPane logText){
+	public Machine(JTextArea logText){
 		this.logText = logText;
 		
 		videoBuffer = new BufferedImage(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);

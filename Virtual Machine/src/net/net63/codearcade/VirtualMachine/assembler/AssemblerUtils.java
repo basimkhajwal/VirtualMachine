@@ -19,6 +19,8 @@ public class AssemblerUtils {
 		//1. Remove all comments
 		source = removeComments(source);
 		
+		
+		
 		return source;
 	}
 	
@@ -26,10 +28,10 @@ public class AssemblerUtils {
 		StringBuilder finalSource = new StringBuilder();
 		
 		for(String line: source.split("\n")){
-			finalSource.append(line.split("//")[0]); //Only attach the first part from the first double slash in the line
+			finalSource.append(line.split("//")[0]).append("\n"); //Only attach the first part from the first double slash in the line and a new line character
 		}
 		
-		return source;
+		return finalSource.toString();
 	}
 	
 	public class AssembleException extends Exception{
