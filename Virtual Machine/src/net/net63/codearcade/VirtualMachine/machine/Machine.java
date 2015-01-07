@@ -135,6 +135,8 @@ public class Machine {
 
 	public void setClockTime(float clockTime) {
 		this.clockTime = clockTime;
+		
+		clockDeltaTime = 0;
 	}
 	
 	public int[] getRegisterValues(){

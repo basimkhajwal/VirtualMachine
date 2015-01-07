@@ -2,11 +2,9 @@ package net.net63.codearcade.VirtualMachine.machine;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -35,6 +33,8 @@ import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
 public class Window implements Runnable, KeyListener{
@@ -48,7 +48,7 @@ public class Window implements Runnable, KeyListener{
 	private JTextArea logText;
 	private JTabbedPane tabbedPane;
 	private JSlider frameRateSlider;
-	private JLabel addressLabel, dataLabel, pcLabel;
+	private JLabel addressLabel, dataLabel, pcLabel, sliderLabel;
 	
 	private MyModel tableModel;
 	private Canvas canvas;
@@ -170,6 +170,16 @@ public class Window implements Runnable, KeyListener{
 		frameRateSlider.setEnabled(false);
 		frameRateSlider.setBorder( BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5,0,0,0), "Instructions Per Second:", TitledBorder.LEADING, TitledBorder.TOP));
 		frameRateSlider.setPreferredSize(new Dimension(200, 50));
+		frameRateSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				sliderLabel.setText("" + frameRateSlider.getValue());
+				
+			}
+		});
+		
+		sliderLabel = new JLabel();
 		
 		stepProgram = new JButton("Step Instruction");
 		stepProgram.setFocusable(false);
@@ -270,6 +280,7 @@ public class Window implements Runnable, KeyListener{
 		
 		controls.add(loadProgram);
 		controls.add(frameRateSlider);
+		controls.add(sliderLabel);
 		controls.add(runProgram);
 		controls.add(pauseProgram);
 		controls.add(stepProgram);
@@ -339,9 +350,7 @@ public class Window implements Runnable, KeyListener{
 			endLoopTime = System.nanoTime();
 			deltaLoop = endLoopTime - beginLoopTime;
 
-			if (deltaLoop > desiredDeltaLoop) {
-				
-			} else {
+			if (deltaLoop <= desiredDeltaLoop) {
 				try {
 					Thread.sleep((desiredDeltaLoop - deltaLoop) / (1000 * 1000));
 				} catch (InterruptedException e) {
@@ -363,16 +372,25 @@ public class Window implements Runnable, KeyListener{
 	private void updateRegisterLabels(){
 		int[] data = machine.getRegisterValues();
 		
-		pcLabel.setText("Program Counter Register: " + data[0]);
-		addressLabel.setText("Address Register: " + data[1]);
-		dataLabel.setText("Data Register: " + data[2]);
+		pcLabel.setText("Program Counter Register: \t\t\t" + data[0]);
+		addressLabel.setText("Address Register: \t\t" + data[1]);
+		dataLabel.setText("Data Register: \t\t" + data[2]);
 	}
 	
-	
+	private void updateFrameRate(){
+		int value = frameRateSlider.getValue();		
+		float clockTime = 1000.0f / value;
+		
+		if(clockTime != machine.getClockTime()){
+			machine.setClockTime(clockTime);
+		}
+	}
 	
 	protected void update(int deltaTime) {
 		if(machineRunning){
 			machine.update(deltaTime);	
+		}else if(machineSetup){
+			updateFrameRate();
 		}
 		
 		if(machineSetup && machine.isUpdated()){
@@ -385,12 +403,7 @@ public class Window implements Runnable, KeyListener{
 		g.clearRect(0, 0, WIDTH, HEIGHT);
 		
 		if(machineRunning && machine.isUpdated()){
-			g.drawImage(machine.getVideoBuffer(), 0, 0, 450, 450, 0, 0, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, null);
-			
-		}else if(!machineRunning){
-			g.setColor(Color.RED);
-			g.setFont(Font.getFont("Serif"));
-			g.drawString("Machine Not Running", 50, 50);
+			g.drawImage(machine.getVideoBuffer(), 0, 0, 450, 450, 0, 0, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, null);	
 		}
 		
 	}
@@ -401,6 +414,7 @@ public class Window implements Runnable, KeyListener{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if(machineRunning){
+			log("Key " + e.getKeyChar() + " pressed");
 			machine.keyPressed(e.getKeyCode());
 		}
 	}
@@ -408,6 +422,7 @@ public class Window implements Runnable, KeyListener{
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if(machineRunning){
+			log("Key " + e.getKeyChar() + " released");
 			machine.keyReleased(e.getKeyCode());
 		}
 	}
@@ -455,5 +470,9 @@ public class Window implements Runnable, KeyListener{
 		}
 		
 		
+	}
+	
+	private void log(String msg){
+		logText.setText(logText.getText() + "\n\nWINDOW: " + msg + "\n");
 	}
 }
