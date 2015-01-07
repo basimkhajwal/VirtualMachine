@@ -32,7 +32,6 @@ import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -41,7 +40,7 @@ import javax.swing.table.AbstractTableModel;
 public class Window implements Runnable, KeyListener{
 
 	final int WIDTH = 1000;
-	final int HEIGHT = 600;
+	final int HEIGHT = 650;
 	
 	private JFrame frame;
 	private JTable memoryTable;
@@ -148,7 +147,7 @@ public class Window implements Runnable, KeyListener{
 		JPanel logPanel = new JPanel(new BorderLayout());
 		logText = new JTextArea(11,30);
 		logText.setEditable(false);
-		logText.setMaximumSize(new Dimension(WIDTH - 30,600));
+		logText.setMaximumSize(new Dimension(WIDTH - 30, 550));
 		
 		logPanel.add(new JScrollPane(logText));
 		
@@ -162,7 +161,14 @@ public class Window implements Runnable, KeyListener{
 		controls.setSize(800 - tabbedPane.getWidth(), controls.getHeight());
 		controls.setFocusable(false);
 				
-		frameRateSlider = new JSlider(1, 50, 1);
+		frameRateSlider = new JSlider(0, 50, 1);
+		frameRateSlider.setFocusable(false);
+		frameRateSlider.setMajorTickSpacing(10);
+		frameRateSlider.setMinorTickSpacing(2);
+		frameRateSlider.setPaintTicks(true);
+		frameRateSlider.setPaintLabels(true);
+		frameRateSlider.setBorder( BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5,0,0,0), "Instructions Per Second:", TitledBorder.LEADING, TitledBorder.TOP));
+		frameRateSlider.setPreferredSize(new Dimension(200, 50));
 		
 		stepProgram = new JButton("Step Instruction");
 		stepProgram.setFocusable(false);
