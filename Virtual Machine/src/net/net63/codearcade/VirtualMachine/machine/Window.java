@@ -266,8 +266,8 @@ public class Window implements Runnable, KeyListener{
 		controls.add(loadProgram);
 		controls.add(frameRateSlider);
 		controls.add(runProgram);
-		controls.add(stepProgram);
 		controls.add(pauseProgram);
+		controls.add(stepProgram);
 		controls.add(stopProgram);
 		
 		panel.add(controls, BorderLayout.CENTER);
