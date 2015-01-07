@@ -7,7 +7,7 @@ public class AssemblerUtils {
 	
 	//Errors
 	private static final String SYMBOL_ERROR = "Error in line %d, invalid name for comment. It must start with a character or underscore and contain only characters and numbers";
-	private static final String NUMBER_TOO_LARGE = "Error in line %d, invalid size of "
+	private static final String NUMBER_TOO_LARGE = "Error in line %d, invalid size of number";
 	
 	/**
 	 * A utility function to assemble my own assembly language to the respective binary
