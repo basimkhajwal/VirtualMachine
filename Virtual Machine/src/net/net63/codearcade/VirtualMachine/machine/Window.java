@@ -167,6 +167,7 @@ public class Window implements Runnable, KeyListener{
 		frameRateSlider.setMinorTickSpacing(2);
 		frameRateSlider.setPaintTicks(true);
 		frameRateSlider.setPaintLabels(true);
+		frameRateSlider.setEnabled(false);
 		frameRateSlider.setBorder( BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5,0,0,0), "Instructions Per Second:", TitledBorder.LEADING, TitledBorder.TOP));
 		frameRateSlider.setPreferredSize(new Dimension(200, 50));
 		
@@ -197,6 +198,7 @@ public class Window implements Runnable, KeyListener{
 						stopProgram.setEnabled(true);
 						runProgram.setEnabled(true);
 						stepProgram.setEnabled(true);
+						frameRateSlider.setEnabled(true);
 					}
 				}
 				
@@ -217,6 +219,7 @@ public class Window implements Runnable, KeyListener{
 					pauseProgram.setEnabled(true);
 					stopProgram.setEnabled(true);
 					stepProgram.setEnabled(false);
+					frameRateSlider.setEnabled(false);
 					
 				}else{
 					JOptionPane.showMessageDialog(frame, "Please load a machine first!");
@@ -237,6 +240,7 @@ public class Window implements Runnable, KeyListener{
 				runProgram.setEnabled(true);
 				pauseProgram.setEnabled(false);
 				stepProgram.setEnabled(true);
+				frameRateSlider.setEnabled(true);
 			}
 			
 		});
@@ -257,6 +261,7 @@ public class Window implements Runnable, KeyListener{
 				stopProgram.setEnabled(false);
 				pauseProgram.setEnabled(false);
 				stepProgram.setEnabled(false);
+				frameRateSlider.setEnabled(false);
 				
 				loadProgram.setEnabled(true);
 			}
@@ -364,14 +369,15 @@ public class Window implements Runnable, KeyListener{
 	}
 	
 	
+	
 	protected void update(int deltaTime) {
 		if(machineRunning){
-			machine.update(deltaTime);
-			
-			if(machine.isUpdated()){
-				updateTableData();
-				updateRegisterLabels();
-			}
+			machine.update(deltaTime);	
+		}
+		
+		if(machineSetup && machine.isUpdated()){
+			updateTableData();
+			updateRegisterLabels();
 		}
 	}
 
