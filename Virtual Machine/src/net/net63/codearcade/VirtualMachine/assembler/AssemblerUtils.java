@@ -11,9 +11,10 @@ public class AssemblerUtils {
 	//Errors
 	private static final String GENERIC_ERROR = "Error in line %d, ";
 	
-	private static final String SYMBOL_ERROR = GENERIC_ERROR + "invalid name for comment. It must start with a character or underscore and contain only characters and numbers";
+	private static final String SYMBOL_ERROR = GENERIC_ERROR + "invalid name for comment. It must contain only characters, case sensitive";
 	private static final String NUMBER_TOO_LARGE = GENERIC_ERROR + "invalid size of number";
 	private static final String INVALID_NUMBER_ARGUMENT = GENERIC_ERROR + "the pattern %s is not recognised as a binary, decimal or hex number";
+	private static final String INVALID_SYMBOL = GENERIC_ERROR + "invalid symbol found";
 	
 	/**
 	 * A utility function to assemble my own assembly language to the respective binary
@@ -38,6 +39,10 @@ public class AssemblerUtils {
 		Object[] returnValues = generateSymbols(source);
 		HashMap<String, Integer> symbols = (HashMap<String, Integer>) returnValues[0];
 		source = (String) returnValues[1];
+		
+		for(String s: symbols.keySet()){
+			System.out.println(s + ": " + symbols.get(s));
+		}
 		
 		//3. Replace symbols
 		source = replaceSymbols(source, symbols);
@@ -70,9 +75,10 @@ public class AssemblerUtils {
 		int lineNumber = 1;
 		
 		for(String line: source.split(LINE_DELIMITER)){
-			String sym = line.substring(1, line.length() - 1);
 			
 			if(line.startsWith("(") && line.endsWith(")")){
+				String sym = line.substring(1, line.length() - 1);
+				
 				if(isValidSymbol(sym)){
 					map.put(sym, currentByteOfMemory);
 					currentByteOfMemory += 1;
@@ -91,7 +97,7 @@ public class AssemblerUtils {
 	}
 	
 	private static boolean isValidSymbol(String symbol){
-		return symbol.matches("^[a-zA-Z_][a-zA-Z_0-9]");
+		return symbol.matches("[a-zA-Z]+");
 	}
 	
 	private static String replaceSymbols(String source, HashMap<String, Integer> symbols){
@@ -119,18 +125,20 @@ public class AssemblerUtils {
 					errorMsg = String.format(NUMBER_TOO_LARGE, lineNum);
 				}else if(num == -1){
 					errorMsg = String.format(INVALID_NUMBER_ARGUMENT, lineNum, line.substring(1));
+				}else if( num == -3){
+					errorMsg = String.format(INVALID_SYMBOL, lineNum);
 				}
 				
 				if(errorMsg != null){
 					throw new AssembleException(errorMsg);
 				}else{
 					
-					binary.append(String.format("1%15s%s", Integer.toBinaryString(num), LINE_DELIMITER));
+					binary.append(String.format("1%15s%s", Integer.toBinaryString(num), LINE_DELIMITER).replace(' ', '0'));
 				}
 				
 				
 			}else{
-				throw new AssembleException("Error not supported yet :)");
+				
 			}
 			
 			lineNum++;
@@ -140,6 +148,10 @@ public class AssemblerUtils {
 	}
 	
 	private static int parseShort(String s){
+		if(s.matches("^[a-zA-Z_]")){
+			return -3;
+		}
+		
 		int num;
 		
 		if(s.startsWith("0x")){
