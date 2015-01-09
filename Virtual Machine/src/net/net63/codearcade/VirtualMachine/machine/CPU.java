@@ -23,7 +23,7 @@ public class CPU{
 	
 	private class BITS{
 		//Instruction bits
-		public static final int INSTRUCTION_TYPE = 15; 		// If set then it is a C-type instruction otherwise an A-type
+		public static final int INSTRUCTION_TYPE = 15; 		// If set then it is a A-type instruction otherwise a C-type
 		public static final int A = 12; 					// Whether to use A or memory at A
 		public static final int C1 = 11; 					// Set A to 0
 		public static final int C2 = 10; 					// Set A to NOT A

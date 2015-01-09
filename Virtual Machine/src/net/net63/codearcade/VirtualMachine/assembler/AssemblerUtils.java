@@ -5,9 +5,15 @@ import java.util.Iterator;
 
 public class AssemblerUtils {
 	
+	//Codes
+	private static final String LINE_DELIMITER = "\n";
+	
 	//Errors
-	private static final String SYMBOL_ERROR = "Error in line %d, invalid name for comment. It must start with a character or underscore and contain only characters and numbers";
-	private static final String NUMBER_TOO_LARGE = "Error in line %d, invalid size of number";
+	private static final String GENERIC_ERROR = "Error in line %d, ";
+	
+	private static final String SYMBOL_ERROR = GENERIC_ERROR + "invalid name for comment. It must start with a character or underscore and contain only characters and numbers";
+	private static final String NUMBER_TOO_LARGE = GENERIC_ERROR + "invalid size of number";
+	private static final String INVALID_NUMBER_ARGUMENT = GENERIC_ERROR + "the pattern %s is not recognised as a binary, decimal or hex number";
 	
 	/**
 	 * A utility function to assemble my own assembly language to the respective binary
@@ -49,8 +55,8 @@ public class AssemblerUtils {
 	private static String removeComments(String source){
 		StringBuilder finalSource = new StringBuilder();
 		
-		for(String line: source.split("\n")){
-			finalSource.append(line.split("//")[0].trim()).append("\n"); //Only attach the first part from the first double slash in the line and a new line character
+		for(String line: source.split(LINE_DELIMITER)){
+			finalSource.append(line.split("//")[0].trim()).append(LINE_DELIMITER); //Only attach the first part from the first double slash in the line and a new line character
 		}
 		
 		return finalSource.toString();
@@ -63,7 +69,7 @@ public class AssemblerUtils {
 		int currentByteOfMemory = 0;
 		int lineNumber = 1;
 		
-		for(String line: source.split("\n")){
+		for(String line: source.split(LINE_DELIMITER)){
 			String sym = line.substring(1, line.length() - 1);
 			
 			if(line.startsWith("(") && line.endsWith(")")){
@@ -74,7 +80,7 @@ public class AssemblerUtils {
 					throw new AssembleException(String.format(SYMBOL_ERROR, lineNumber));
 				}
 			}else{
-				finalSource.append(line + "\n");
+				finalSource.append(line + LINE_DELIMITER);
 				currentByteOfMemory += 2;
 			}
 			
@@ -102,21 +108,32 @@ public class AssemblerUtils {
 	private static String generatePsuedoBinary(String source) throws AssembleException{
 		StringBuilder binary = new StringBuilder();
 		
-		for(String line: source.split("\n")){
+		int lineNum = 1;
+		
+		for(String line: source.split(LINE_DELIMITER)){
 			if(line.startsWith("@")){
 				int num = parseShort(line.substring(1));
+				String errorMsg = null;
 				
 				if(num == -2){
-					
+					errorMsg = String.format(NUMBER_TOO_LARGE, lineNum);
 				}else if(num == -1){
-					
-				}else{
-					
+					errorMsg = String.format(INVALID_NUMBER_ARGUMENT, lineNum, line.substring(1));
 				}
 				
-			}else{
+				if(errorMsg != null){
+					throw new AssembleException(errorMsg);
+				}else{
+					
+					binary.append(String.format("1%15s%s", Integer.toBinaryString(num), LINE_DELIMITER));
+				}
 				
+				
+			}else{
+				throw new AssembleException("Error not supported yet :)");
 			}
+			
+			lineNum++;
 		}
 		
 		return binary.toString();
