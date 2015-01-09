@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import net.net63.codearcade.VirtualMachine.assembler.AssemblerUtils.AssembleException;
+
 public class Window implements Runnable{
 	
 	private JButton compile, loadAssembly, saveAssembly, saveBinary;
@@ -85,6 +87,13 @@ public class Window implements Runnable{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				try{
+					String ret = AssemblerUtils.compileSource(codeText.getText());
+				
+					System.out.println(ret);
+				}catch(AssembleException ex){
+					ex.printStackTrace();
+				}
 				
 				
 			}
