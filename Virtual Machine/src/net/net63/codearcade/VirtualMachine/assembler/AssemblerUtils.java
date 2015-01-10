@@ -2,6 +2,7 @@ package net.net63.codearcade.VirtualMachine.assembler;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class AssemblerUtils {
 	
@@ -19,6 +20,8 @@ public class AssemblerUtils {
 	private static final String NUMBER_TOO_LARGE = GENERIC_ERROR + "invalid size of number";
 	private static final String INVALID_NUMBER_ARGUMENT = GENERIC_ERROR + "the pattern %s is not recognised as a binary, decimal or hex number";
 	private static final String INVALID_SYMBOL = GENERIC_ERROR + "invalid symbol found";
+	private static final String INVALID_DESTINATION = GENERIC_ERROR + "invalid destionation, can only be A, AM, AD, MD, or AMD";
+	private static final String INVALID_COMPUTATION = GENERIC_ERROR + "invalid computation %s";
 	
 	/**
 	 * A utility function to assemble my own assembly language to the respective binary
@@ -57,7 +60,7 @@ public class AssemblerUtils {
 		
 		
 		
-		
+		//Return the final source
 		return source;
 	}
 	
@@ -134,9 +137,16 @@ public class AssemblerUtils {
 	 * @return Whether it is a valid symbol
 	 */
 	private static boolean isValidSymbol(String symbol){
-		return symbol.matches("[a-zA-Z]+");
+		return symbol.matches("[a-zA-Z]+"); //The symbol can only contain letters
 	}
 	
+	/**
+	 * Function to replace all values in the source string that are keys of the hashmap with their respective integer values
+	 * 
+	 * @param source The original source file
+	 * @param symbols The hashmap of symbols previously generated
+	 * @return The modified source file
+	 */
 	private static String replaceSymbols(String source, HashMap<String, Integer> symbols){
 		Iterator<String> it = symbols.keySet().iterator();
 
@@ -177,16 +187,236 @@ public class AssemblerUtils {
 				//The binary builder for use
 				char[] bitBuilder = new char[16];
 				
+				//Fill it with zero
+				for(int i = 0; i < 16; i++){
+					bitBuilder[i] = '0';
+				}
+				
 				if(line.contains("=")){
 					String[] sections = line.split("=");
 					
+					if(sections[0].matches("[A]?[M]?[D]?")){
+						if(sections[0].contains("A")){
+							bitBuilder[10] = '1';
+						}
+						
+						if(sections[0].contains("D")){
+							bitBuilder[11] = '1';
+						}
+						
+						if(sections[0].contains("M")){
+							bitBuilder[12] = '1';
+						}
+						
+						if(parseControlBits(sections[1].split(";")[0], bitBuilder) != 0){
+							throw new AssembleException(String.format(INVALID_COMPUTATION, lineNum, sections[1].split(";")[0]));
+						}
+					}else{
+						throw new AssembleException(String.format(INVALID_DESTINATION, lineNum));
+					}
+					
+					
 				}
+				
+				
+				
 			}
 			
 			lineNum++;
 		}
 		
 		return binary.toString();
+	}
+	
+	
+	/**
+	 * Replaces all occurrences of newline, spaces and tabs with empty strings.
+	 * 
+	 * @param s The string to use
+	 * @return The final modified string
+	 */
+	private static String removeWhitespace(String s){
+		return s.replace("\n", "").replace(" ", "").replace("\t", "");
+	}
+	
+	/**
+	 * @param jmp The string of the jmp section in the code
+	 * @param bits
+	 * @return
+	 */
+	private static int parseJumpBits(String jmp, char[] bits){
+		
+		//Remove the whitespace
+		jmp = removeWhitespace(jmp);
+		
+		String finalBits;
+		
+		switch(jmp){
+			
+			case "JMP":
+				finalBits = "111";
+				break;
+			
+			default:
+				return -1;
+		}
+		
+		//Finally put the bits into the array
+		for(int i = 0; i < 3; i++){
+			bits[i + 13] = finalBits.charAt(i);
+		}
+		
+		//Return that it was a success
+		return 0;
+	}
+	
+	
+	/**
+	 * Utility function to parse the control section and fill the array with the correct bits
+	 * 
+	 * 
+	 * @param comp The compute value of the line in assembly
+	 * @param bits The array of bits to fill
+	 * @return A non-zero integer on error
+	 */
+	private static int parseControlBits(String comp, char[] bits){
+		
+		//Remove the whitespace
+		comp = removeWhitespace(comp);
+		
+		//The final bits to put in the array, from address 
+		String finalBits;
+		
+		//Case statement that checks all possible cases that the computation can be
+		//and for each one generated the correct bits to put in the instruction
+		switch(comp){
+			//When A=0, use the value of the A register
+			case "0":
+				finalBits = "0101010";
+				break;
+				
+			case "1":
+				finalBits = "0111111";
+				break;
+			
+			case "-1":
+				finalBits = "0111010";
+				break;
+				
+			case "D":
+				finalBits = "0001100";
+				break;
+				
+			case "A":
+				finalBits = "0110000";
+				break;
+				
+			case "!D":
+				finalBits = "0001101";
+				break;
+				
+			case "!A":
+				finalBits = "0110001";
+				break;
+			
+			case "-D":
+				finalBits = "0001111";
+				break;
+			
+			case "-A":
+				finalBits = "0110011";
+				break;
+			
+			case "D+1":
+				finalBits = "0011111";
+				break;
+			
+			case "A+1":
+				finalBits = "0110001";
+				break;
+			
+			case "D-1":
+				finalBits = "0001110";
+				break;
+			
+			case "A-1":
+				finalBits = "0110010";
+				break;
+			
+			case "D+A":
+				finalBits = "0000010";
+				break;
+			
+			case "D-A":
+				finalBits = "0010011";
+				break;
+			
+			case "A-D":
+				finalBits = "0000111";
+				break;
+				
+			case "D&A":
+				finalBits = "0000000";
+				break;
+			
+			case "D|A":
+				finalBits = "0010101";
+				break;
+				
+			//When A=1, use the memory at A register instead
+			case "M":
+				finalBits = "1110000";
+				break;
+			
+			case "!M":
+				finalBits = "1110001";
+				break;
+			
+			case "-M":
+				finalBits = "1110011";
+				break;
+			
+			case "M+1":
+				finalBits = "1110111";
+				break;
+				
+			case "M-1":
+				finalBits = "1110010";
+				break;
+				
+			case "D+M":
+				finalBits = "1000010";
+				break;
+				
+			case "D-M":
+				finalBits = "1010011";
+				break;
+				
+			case "M-D":
+				finalBits = "1000111";
+				break;
+				
+			case "D&M":
+				finalBits = "1000000";
+				break;
+				
+			case "D|M":
+				finalBits = "1010101";
+				break;
+			
+			//If command isn't found, return an error
+			default:
+				return -1;
+				
+		}
+		
+		//Finally, put the bits in the char array
+		for(int i = 0; i < 7; i++){
+			bits[i + 3] = finalBits.charAt(i);
+		}
+		
+		//Return that it was a success
+		return 0;
 	}
 	
 	/**
@@ -197,8 +427,10 @@ public class AssemblerUtils {
 	 * @return An integer which is an error code if an error occurred otherwise the value of the number
 	 */
 	private static int parseShort(String s, HashMap<String,Integer> symbols){
+		//Check if it contains any letters
 		if(s.matches("[a-zA-Z]+")){
 			
+			//If it is a valid symbol use that value, otherwise return an error
 			if(symbols.containsKey(s)){
 				return symbols.get(s);
 			}else{
@@ -207,8 +439,10 @@ public class AssemblerUtils {
 			
 		}
 		
+		//The final number to return
 		int num;
 		
+		//Check it is hex,binary or decimal and then try parse, otherwise error
 		if(s.startsWith("0x")){
 			try{
 				num = Integer.parseInt(s.substring(2), 16);
@@ -229,10 +463,12 @@ public class AssemblerUtils {
 			}
 		}
 		
+		//Make sure that it isn't too large
 		if(num > (1 << 16)){
 			return CODE_LARGE;
 		}
 		
+		//Return the final number
 		return num;
 	}
 	
