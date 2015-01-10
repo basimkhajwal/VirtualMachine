@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import net.net63.codearcade.VirtualMachine.assembler.AssemblerUtils.AssembleException;
+import net.net63.codearcade.VirtualMachine.lib.TextLineNumber;
 
 public class Window implements Runnable{
 	
@@ -74,6 +75,10 @@ public class Window implements Runnable{
 		codeText.setSize(100, 100);
 		
 		JScrollPane scrollPane = new JScrollPane(codeText);
+		TextLineNumber tln = new TextLineNumber(codeText);
+		
+		scrollPane.setRowHeaderView(tln);
+		
 		mainPanel.add(scrollPane, BorderLayout.CENTER);
 		
 		panel.add(mainPanel, BorderLayout.CENTER);
