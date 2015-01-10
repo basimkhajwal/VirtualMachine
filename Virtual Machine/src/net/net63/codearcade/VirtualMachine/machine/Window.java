@@ -39,8 +39,11 @@ import javax.swing.table.AbstractTableModel;
 
 public class Window implements Runnable, KeyListener{
 
-	final int WIDTH = 1000;
-	final int HEIGHT = 650;
+	private final int WIDTH = 1000;
+	private final int HEIGHT = 650;
+	
+	private final int CANVAS_WIDTH = 450;
+	private final int CANVAS_HEIGHT = 450;
 	
 	private JFrame frame;
 	private JTable memoryTable;
@@ -59,6 +62,11 @@ public class Window implements Runnable, KeyListener{
 	
 	private Machine machine;
 	
+	/**
+	 * Initialises the machine with data as code from the file
+	 * 
+	 * @param file The file to create the machine from
+	 */
 	private void newMachineFromFile(File file){
 		
 		try {
@@ -99,11 +107,10 @@ public class Window implements Runnable, KeyListener{
 		panel.setLayout(new BorderLayout());
 		
 		canvas = new Canvas();
-		canvas.setBounds(0, 0, 450, 450);
+		canvas.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		canvas.setIgnoreRepaint(true);
 		
 		tabbedPane = new JTabbedPane();
-		tabbedPane.setMaximumSize(new Dimension(WIDTH, 450));
 		
 		JPanel videoMemory = new JPanel();
 		videoMemory.setSize(canvas.getWidth(), canvas.getHeight());
