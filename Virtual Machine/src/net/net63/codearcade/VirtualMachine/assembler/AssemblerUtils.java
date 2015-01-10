@@ -55,8 +55,8 @@ public class AssemblerUtils {
 		//4. Generate the pseudo-binary, the main parser
 		source = generatePsuedoBinary(source);
 		
-		//5. Generate actual binary TODO
-		
+		//5. Generate actual binary
+		source = generateBinary(source);
 		
 		//Return the final source
 		return source;
