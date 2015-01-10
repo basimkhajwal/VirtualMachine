@@ -181,12 +181,12 @@ public class Window implements Runnable, KeyListener{
 			
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				sliderLabel.setText("" + frameRateSlider.getValue());
+				sliderLabel.setText("" + frameRateSlider.getValue() + " Hz");
 				
 			}
 		});
 		
-		sliderLabel = new JLabel();
+		sliderLabel = new JLabel("1 Hz");
 		
 		stepProgram = new JButton("Step Instruction");
 		stepProgram.setFocusable(false);
@@ -385,9 +385,15 @@ public class Window implements Runnable, KeyListener{
 	}
 	
 	private void updateFrameRate(){
-		int value = frameRateSlider.getValue();		
-		float clockTime = 1000.0f / value;
+		int value = frameRateSlider.getValue();
+		float clockTime;
 		
+		if(value != 0){
+			clockTime = 1000.0f / value;
+		}else{
+			clockTime = Constants.CLOCK_TIME;
+		}
+			
 		if(clockTime != machine.getClockTime()){
 			machine.setClockTime(clockTime);
 		}
