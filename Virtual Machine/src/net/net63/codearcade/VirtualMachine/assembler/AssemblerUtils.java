@@ -578,6 +578,27 @@ public class AssemblerUtils {
 	}
 	
 	/**
+	 * A utility function that takes the pseudo binary and generates the final binary version
+	 * 
+	 * @param source The source of pseudo-binary generated earlier
+	 * @return The final binary string
+	 */
+	private static final String generateBinary(String source){
+		StringBuilder binary = new StringBuilder();
+		
+		for(String line: source.split(LINE_DELIMITER)){
+			int intValue = Integer.parseInt(line, 2);
+			
+			char a = (char)((intValue & 0xFF00) >> 8);
+			char b = (char)(intValue & 0xFF);
+			
+			binary.append(a).append(b);
+		}
+		
+		return binary.toString();
+	}
+	
+	/**
 	 * A custom exception class which describes when a certain exception has occurred during a certain assembling stage
 	 * 
 	 * 
