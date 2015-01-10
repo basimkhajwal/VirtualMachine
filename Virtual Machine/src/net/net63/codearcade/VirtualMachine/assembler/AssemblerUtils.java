@@ -1,5 +1,6 @@
 package net.net63.codearcade.VirtualMachine.assembler;
 
+import java.awt.font.NumericShaper;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -240,9 +241,11 @@ public class AssemblerUtils {
 	}
 	
 	/**
-	 * @param jmp The string of the jmp section in the code
+	 * Another utility function that replaces the JMP section with the appropriate bits in the array
+	 * 
+	 * @param jmp The string of the jump section in the code
 	 * @param bits
-	 * @return
+	 * @return A non-zero integer on error
 	 */
 	private static int parseJumpBits(String jmp, char[] bits){
 		
@@ -257,6 +260,34 @@ public class AssemblerUtils {
 				finalBits = "111";
 				break;
 			
+			case "JLE":
+				finalBits = "110";
+				break;
+				
+			case "JNE":
+				finalBits = "101";
+				break;
+				
+			case "JLT":
+				finalBits = "100";
+				break;
+				
+			case "JGE":
+				finalBits = "011";
+				break;
+				
+			case "JEQ":
+				finalBits = "010";
+				break;
+				
+			case "JGT":
+				finalBits = "001";
+				break;
+				
+			case "":
+				finalBits = "000";
+				break;
+				
 			default:
 				return -1;
 		}
@@ -291,7 +322,7 @@ public class AssemblerUtils {
 		//and for each one generated the correct bits to put in the instruction
 		switch(comp){
 			//When A=0, use the value of the A register
-			case "0":
+			case "0": case "":
 				finalBits = "0101010";
 				break;
 				
@@ -423,7 +454,7 @@ public class AssemblerUtils {
 	 * A private utility function to compute the value of the body of an A-type instruction
 	 * 
 	 * @param s The short s to parse
-	 * @param symbols The hashmap of symbols generated earlier with the generateSymbols function
+	 * @param symbols The hash map of symbols generated earlier with the generateSymbols function
 	 * @return An integer which is an error code if an error occurred otherwise the value of the number
 	 */
 	private static int parseShort(String s, HashMap<String,Integer> symbols){
@@ -446,19 +477,19 @@ public class AssemblerUtils {
 		if(s.startsWith("0x")){
 			try{
 				num = Integer.parseInt(s.substring(2), 16);
-			}catch(Exception e){
+			}catch(NumberFormatException e){
 				return CODE_INVALID_NUMBER;
 			}
 		}else if(s.startsWith("0b")){
 			try{
 				num = Integer.parseInt(s.substring(2), 2);
-			}catch(Exception e){
+			}catch(NumberFormatException e){
 				return CODE_INVALID_NUMBER;
 			}
 		}else{
 			try{
 				num = Integer.parseInt(s);
-			}catch(Exception e){
+			}catch(NumberFormatException e){
 				return CODE_INVALID_NUMBER;
 			}
 		}
