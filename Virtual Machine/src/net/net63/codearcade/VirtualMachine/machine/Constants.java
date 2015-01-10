@@ -19,6 +19,6 @@ public class Constants {
 	
 	}
 	
-	public static final float CLOCK_SPEED = 1f;
+	public static final float CLOCK_SPEED = 0.01f;
 	public static final float CLOCK_TIME = 1000 / CLOCK_SPEED;
 }
