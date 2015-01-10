@@ -22,7 +22,6 @@ public class Window implements Runnable{
 	
 	private JButton compile, loadAssembly, saveAssembly, saveBinary;
 	private JTextPane codeText;
-	private String binary;
 	
 	@Override
 	public void run(){

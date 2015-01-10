@@ -1,9 +1,7 @@
 package net.net63.codearcade.VirtualMachine.assembler;
 
-import java.awt.font.NumericShaper;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 public class AssemblerUtils {
 	
@@ -14,15 +12,18 @@ public class AssemblerUtils {
 	private static final int CODE_INVALID_NUMBER = (1 << 16) + 2;
 	private static final int CODE_INVALID_SYMBOL = (1 << 16) + 3;
 	
-	//Errors
+	/* --- Errors --- */
+	//The generic error that all the others use
 	private static final String GENERIC_ERROR = "Error in line %d, ";
 	
+	//The main errors 
 	private static final String SYMBOL_ERROR = GENERIC_ERROR + "invalid name for comment. It must contain only characters, case sensitive";
 	private static final String NUMBER_TOO_LARGE = GENERIC_ERROR + "invalid size of number";
 	private static final String INVALID_NUMBER_ARGUMENT = GENERIC_ERROR + "the pattern %s is not recognised as a binary, decimal or hex number";
 	private static final String INVALID_SYMBOL = GENERIC_ERROR + "invalid symbol found";
-	private static final String INVALID_DESTINATION = GENERIC_ERROR + "invalid destionation, can only be A, AM, AD, MD, or AMD";
-	private static final String INVALID_COMPUTATION = GENERIC_ERROR + "invalid computation %s";
+	private static final String INVALID_DESTINATION = GENERIC_ERROR + "invalid destionation %s, can only be A, AM, AD, MD, or AMD";
+	private static final String INVALID_COMPUTATION = GENERIC_ERROR + "invalid computation %s, see manual for further details";
+	private static final String INVALID_JUMP_ARGUEMENT = GENERIC_ERROR + "invalid jump arguement %s, see manual for further details";
 	
 	/**
 	 * A utility function to assemble my own assembly language to the respective binary
@@ -48,17 +49,13 @@ public class AssemblerUtils {
 		HashMap<String, Integer> symbols = (HashMap<String, Integer>) returnValues[0];
 		source = (String) returnValues[1];
 		
-		for(String s: symbols.keySet()){
-			System.out.println(s + ": " + symbols.get(s));
-		}
-		
 		//3. Replace symbols
 		source = replaceSymbols(source, symbols);
 		
-		//4. Generate the pseudo-binary
-		source = generatePsuedoBinary(source, symbols);
+		//4. Generate the pseudo-binary, the main parser
+		source = generatePsuedoBinary(source);
 		
-		
+		//5. Generate actual binary TODO
 		
 		
 		//Return the final source
@@ -85,6 +82,8 @@ public class AssemblerUtils {
 	}
 	
 	/**
+	 * Loop through the source code and generate a list of the symbols defined in the program
+	 * 
 	 * @param source The source lines with comments removed to generate the symbols from
 	 * @return An 2-wide array of objects, the first is the a HashMap<String, Integer> of the generated symbols, the second is the final modified string with all the needed symbols removed
 	 * @throws AssembleException
@@ -142,33 +141,55 @@ public class AssemblerUtils {
 	}
 	
 	/**
-	 * Function to replace all values in the source string that are keys of the hashmap with their respective integer values
+	 * Function to replace all values in the source string that are keys of the hash map with their respective integer values
 	 * 
 	 * @param source The original source file
-	 * @param symbols The hashmap of symbols previously generated
+	 * @param symbols The hash map of symbols previously generated
 	 * @return The modified source file
 	 */
 	private static String replaceSymbols(String source, HashMap<String, Integer> symbols){
 		Iterator<String> it = symbols.keySet().iterator();
-
+		
+		//Iterate over defined symbols and replace them from the source string
 		while(it.hasNext()){
 			String sym = it.next();
-			source.replace(sym, ""+symbols.get(sym));
+			source = source.replace(sym, ""+symbols.get(sym));
 		}
 		
+		//Return the modified source
 		return source;
 	}
 	
-	private static String generatePsuedoBinary(String source, HashMap<String, Integer> symbols) throws AssembleException{
+	/**
+	 * The main computing function that returns a pseudo binary string by parsing the input lines
+	 * 
+	 * @param source The source to parse
+	 * @return The modified pseudo binary source
+	 * @throws AssembleException
+	 */
+	private static String generatePsuedoBinary(String source) throws AssembleException{
+		//The final pseudo-binary string to be returned
 		StringBuilder binary = new StringBuilder();
 		
+		//The line number counter
 		int lineNum = 1;
 		
+		//Loop through each line in the source given
 		for(String line: source.split(LINE_DELIMITER)){
+			line = removeWhitespace(line); //Remove whitespace
+			
+			//Make sure the line isn't empty
+			if(line == ""){
+				lineNum++;
+				continue;
+			}
+			
 			if(line.startsWith("@")){
-				int num = parseShort(line.substring(1), symbols);
+				//Call the parseShort program and get the resulting number
+				int num = parseShort(line.substring(1));
 				String errorMsg = null;
 				
+				//Check if the returned number was an error message
 				if(num == -2){
 					errorMsg = String.format(NUMBER_TOO_LARGE, lineNum);
 				}else if(num == -1){
@@ -177,6 +198,7 @@ public class AssemblerUtils {
 					errorMsg = String.format(INVALID_SYMBOL, lineNum);
 				}
 				
+				//Throw an error if applicable otherwise put the binary string in place
 				if(errorMsg != null){
 					throw new AssembleException(errorMsg);
 				}else{
@@ -193,39 +215,62 @@ public class AssemblerUtils {
 					bitBuilder[i] = '0';
 				}
 				
-				if(line.contains("=")){
-					String[] sections = line.split("=");
-					
-					if(sections[0].matches("[A]?[M]?[D]?")){
-						if(sections[0].contains("A")){
-							bitBuilder[10] = '1';
-						}
+				//The strings to send to the utility functions
+				String dest = "";
+				String comp = "";
+				String jmp = "";
+				
+				//Split it with either an equal or a semi-colon
+				String[] sections = line.split("[=;]");
+				
+				switch(sections.length){
+					case 1:
+						comp = sections[0];
+						break;
 						
-						if(sections[0].contains("D")){
-							bitBuilder[11] = '1';
+					case 2:
+						if(line.contains("=")){
+							dest = sections[0];
+							comp = sections[1];
+						}else{
+							comp = sections[0];
+							jmp = sections[1];
 						}
+						break;
 						
-						if(sections[0].contains("M")){
-							bitBuilder[12] = '1';
-						}
+					case 3:
+						dest = sections[0];
+						comp = sections[1];
+						jmp = sections[2];
+						break;
 						
-						if(parseControlBits(sections[1].split(";")[0], bitBuilder) != 0){
-							throw new AssembleException(String.format(INVALID_COMPUTATION, lineNum, sections[1].split(";")[0]));
-						}
-					}else{
-						throw new AssembleException(String.format(INVALID_DESTINATION, lineNum));
-					}
-					
-					
+					default:
+						break;
 				}
 				
 				
+				if(parseDestinationBits(dest, bitBuilder) != 0){
+					throw new AssembleException(String.format(INVALID_DESTINATION, lineNum, dest));
+				}
+					
+				if(parseControlBits(comp, bitBuilder) != 0){
+					throw new AssembleException(String.format(INVALID_COMPUTATION, lineNum, comp));
+				}
 				
+				if(parseJumpBits(jmp, bitBuilder) != 0){
+					throw new AssembleException(String.format(INVALID_JUMP_ARGUEMENT, lineNum, jmp));
+				}
+				
+				
+				//Finally build the bits and add it to the binary string
+				binary.append(bitBuilder).append(LINE_DELIMITER);
 			}
 			
+			//Increment the line number pointer
 			lineNum++;
 		}
 		
+		//Return the pseudo-binary string
 		return binary.toString();
 	}
 	
@@ -241,6 +286,41 @@ public class AssemblerUtils {
 	}
 	
 	/**
+	 * Utility function to parse destination section of code and put the correct bits in the specified array
+	 * 
+	 * @param dest The string destination section of the assembly line
+	 * @param bits The bits of the current line to set
+	 * @return A non-zero value on error
+	 */
+	private static int parseDestinationBits(String dest, char[] bits){
+		
+		//If the destination section only has A,M or D go ahead, otherwise error
+		if(dest.matches("[A]?[M]?[D]?")){
+			
+			//If it has A then set address return to true
+			if(dest.contains("A")){
+				bits[10] = '1';
+			}
+			
+			//If it has D then set data return to true
+			if(dest.contains("D")){
+				bits[11] = '1';
+			}
+			
+			//If it has M then set memory return to true
+			if(dest.contains("M")){
+				bits[12] = '1';
+			}
+		}else if(dest != ""){
+			//Return that an error occurred
+			return -1;
+		}
+		
+		//Return success
+		return 0;
+	}
+	
+	/**
 	 * Another utility function that replaces the JMP section with the appropriate bits in the array
 	 * 
 	 * @param jmp The string of the jump section in the code
@@ -248,42 +328,45 @@ public class AssemblerUtils {
 	 * @return A non-zero integer on error
 	 */
 	private static int parseJumpBits(String jmp, char[] bits){
-		
-		//Remove the whitespace
-		jmp = removeWhitespace(jmp);
-		
 		String finalBits;
 		
 		switch(jmp){
-			
+			//Unconditional jump
 			case "JMP":
 				finalBits = "111";
 				break;
 			
+			//Jump less than or equal to zero
 			case "JLE":
 				finalBits = "110";
 				break;
 				
+			//Jump not equal to zero
 			case "JNE":
 				finalBits = "101";
 				break;
 				
+			//Jump less than zero
 			case "JLT":
 				finalBits = "100";
 				break;
-				
+			
+			//Jump greater than or equal to zero
 			case "JGE":
 				finalBits = "011";
 				break;
-				
+			
+			//Jump if zero
 			case "JEQ":
 				finalBits = "010";
 				break;
-				
+			
+			//Jump if greater than zero
 			case "JGT":
 				finalBits = "001";
 				break;
 				
+			//Default case is a no-jump
 			case "":
 				finalBits = "000";
 				break;
@@ -311,9 +394,6 @@ public class AssemblerUtils {
 	 * @return A non-zero integer on error
 	 */
 	private static int parseControlBits(String comp, char[] bits){
-		
-		//Remove the whitespace
-		comp = removeWhitespace(comp);
 		
 		//The final bits to put in the array, from address 
 		String finalBits;
@@ -454,20 +534,14 @@ public class AssemblerUtils {
 	 * A private utility function to compute the value of the body of an A-type instruction
 	 * 
 	 * @param s The short s to parse
-	 * @param symbols The hash map of symbols generated earlier with the generateSymbols function
 	 * @return An integer which is an error code if an error occurred otherwise the value of the number
 	 */
-	private static int parseShort(String s, HashMap<String,Integer> symbols){
+	private static int parseShort(String s){
 		//Check if it contains any letters
 		if(s.matches("[a-zA-Z]+")){
 			
-			//If it is a valid symbol use that value, otherwise return an error
-			if(symbols.containsKey(s)){
-				return symbols.get(s);
-			}else{
-				return CODE_INVALID_SYMBOL;
-			}
-			
+			//Return an error
+			return CODE_INVALID_SYMBOL;
 		}
 		
 		//The final number to return
