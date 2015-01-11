@@ -349,6 +349,7 @@ public class Window implements Runnable, KeyListener{
 			beginLoopTime = System.nanoTime();
 			if(canvas.isShowing()){
 				render();
+				canvas.requestFocus();
 			}
 			lastUpdateTime = currentUpdateTime;
 			currentUpdateTime = System.nanoTime();
@@ -394,7 +395,7 @@ public class Window implements Runnable, KeyListener{
 			clockTime = Constants.CLOCK_TIME;
 		}
 			
-		if(clockTime != machine.getClockTime()){
+		if(machineSetup && clockTime != machine.getClockTime()){
 			machine.setClockTime(clockTime);
 		}
 	}
