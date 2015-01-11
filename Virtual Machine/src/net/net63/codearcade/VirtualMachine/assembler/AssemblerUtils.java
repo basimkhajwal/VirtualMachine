@@ -1,5 +1,6 @@
 package net.net63.codearcade.VirtualMachine.assembler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -36,11 +37,11 @@ public class AssemblerUtils {
 	 * 5. Loop through the binary and generate the bytes
 	 * 
 	 * @param source The source string containing valid assembly code separated by a newline character
-	 * @return The binary string to be saved to a file
+	 * @return The binary byte array to be saved to a file
 	 * @throws AssembleException
 	 */
 	@SuppressWarnings("unchecked")
-	public static String compileSource(String source) throws AssembleException{
+	public static byte[] compileSource(String source) throws AssembleException{
 		//1. Remove all comments
 		source = removeComments(source);
 		
@@ -56,10 +57,10 @@ public class AssemblerUtils {
 		source = generatePsuedoBinary(source);
 		
 		//5. Generate actual binary
-		source = generateBinary(source);
+		byte[] finalBinary = generateBinary(source);
 		
 		//Return the final source
-		return source;
+		return finalBinary;
 	}
 	
 	/**
@@ -583,21 +584,26 @@ public class AssemblerUtils {
 	 * @param source The source of pseudo-binary generated earlier
 	 * @return The final binary string
 	 */
-	private static final String generateBinary(String source){
-		StringBuilder binary = new StringBuilder();
+	private static final byte[] generateBinary(String source){
+		ArrayList<Byte> binary = new ArrayList<Byte>();
 		
 		for(String line: source.split(LINE_DELIMITER)){
 			if(line == "") continue;
 			
 			int intValue = Integer.parseInt(line, 2);
 			
-			char a = (char)((intValue & 0xFF00) >> 8);
-			char b = (char)(intValue & 0xFF);
+			binary.add(new Byte((byte) (intValue >> 8)));
+			binary.add(new Byte((byte) (intValue & 0xFF)));
 			
-			binary.append(a).append(b);
 		}
 		
-		return binary.toString();
+		byte[] finalBinary = new byte[binary.size()];
+		
+		for(int i = 0; i < finalBinary.length; i++){
+			finalBinary[i] = binary.get(i).byteValue();
+		}
+		
+		return finalBinary;
 	}
 	
 	/**
