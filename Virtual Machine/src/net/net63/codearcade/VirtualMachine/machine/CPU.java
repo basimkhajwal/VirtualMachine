@@ -82,13 +82,13 @@ public class CPU{
 			
 			//If A bit is set then use memory at address register otherwise use register itself
 			if(getBit(currentInstruction, BITS.A)){
-				a = RAM.getWord(addressRegister);
+				b = RAM.getWord(addressRegister);
 			}else{
-				a = addressRegister;
+				b = addressRegister;
 			}
 			
 			//Set b to the dataRegister
-			b = dataRegister;
+			a = dataRegister;
 			
 			//If bit is set then set A to 0
 			if(getBit(currentInstruction, BITS.C1)){
@@ -131,16 +131,19 @@ public class CPU{
 			
 			//If A bit is set then store it in the A-register
 			if(getBit(currentInstruction, BITS.D1)){
+				log("Storing in address register");
 				addressRegister = (short) out;
 			}
 			
 			//If D bit is set then store it in the D-register
 			if(getBit(currentInstruction, BITS.D2)){
+				log("Storing in data register");
 				dataRegister = (short) out;
 			}
 			
 			//If A[M] bit is set then store it in the A[M]-register
 			if(getBit(currentInstruction, BITS.D3)){
+				log("Storing in memory location " + addressRegister);
 				RAM.setWord(addressRegister & 0x7FFF, (short) out);
 			}
 			
