@@ -5,6 +5,7 @@ import java.awt.Canvas;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -123,6 +124,7 @@ public class Window implements Runnable, KeyListener{
 		
 		memoryTable = new JTable(tableModel);
 		memoryTable.setPreferredScrollableViewportSize(new Dimension(400, 350));
+		memoryTable.setFont(Font.getFont(Font.MONOSPACED));
 		memoryTable.setFillsViewportHeight(true);
 		
 		allMemory.add(new JScrollPane(memoryTable), BorderLayout.NORTH);
@@ -419,7 +421,7 @@ public class Window implements Runnable, KeyListener{
 	protected void render(Graphics2D g) {
 		g.clearRect(0, 0, WIDTH, HEIGHT);
 		
-		if(machineRunning && machine.isUpdated()){
+		if(machineSetup && machine.isUpdated()){
 			g.drawImage(machine.getVideoBuffer(), 0, 0, 450, 450, 0, 0, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, null);	
 		}
 		
