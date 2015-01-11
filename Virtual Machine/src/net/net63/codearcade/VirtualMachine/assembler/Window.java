@@ -10,9 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -24,7 +27,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import net.net63.codearcade.VirtualMachine.assembler.AssemblerUtils.AssembleException;
@@ -35,7 +37,8 @@ public class Window implements Runnable{
 	private JFrame frame;
 	private JButton compile, loadAssembly, saveAssembly, saveBinary;
 	private JTextPane codeText, logText;
-	private String binary;
+	private byte[] binary;
+	private JFileChooser fileChooser;
 	
 	@Override
 	public void run(){
@@ -43,6 +46,8 @@ public class Window implements Runnable{
 		
 		setupFrame();
 		setupGUI((JPanel) frame.getContentPane());
+		
+		fileChooser = new JFileChooser();
 	}
 	
 	private void setupFrame(){
@@ -104,7 +109,6 @@ public class Window implements Runnable{
 		mainPanel.add(scrollPane);
 		mainPanel.add(new JScrollPane(logText));
 		
-		
 		compile = new JButton("Compile Program");
 		compile.setEnabled(false);
 		compile.addActionListener(new ActionListener() {
@@ -112,13 +116,17 @@ public class Window implements Runnable{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try{
+					log("Compiling..");
 					binary = AssemblerUtils.compileSource(codeText.getText());
-					
-					
+					log("Code successfully compiled");
+					log("");
+					saveBinary.setEnabled(true);
+					compile.setEnabled(false);
 				}catch(AssembleException ex){
-					ex.printStackTrace();
+					log("Error compiling");
+					log(ex.getMessage());
+					saveBinary.setEnabled(false);
 				}
-				
 				
 			}
 		});
@@ -129,19 +137,45 @@ public class Window implements Runnable{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser fileChooser = new JFileChooser();
 				
 				if(fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION){
-					
+					saveToFile(codeText.getText().getBytes(), fileChooser.getSelectedFile());
 				}
+				
 			}
 		});
 		
 		saveBinary = new JButton("Save Binary");
 		saveBinary.setEnabled(false);
+		saveBinary.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				if(fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION){
+					saveToFile(binary, fileChooser.getSelectedFile());
+				}
+				
+			}
+		});
 		
 		loadAssembly = new JButton("Load Assembly Program");
 		loadAssembly.setEnabled(true);
+		loadAssembly.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(codeText.getText() == "" && JOptionPane.showConfirmDialog(frame, 
+						"By loading a new file you will lose any unsaved work in the current window. Are you sure you want to continue?", "Assembly Overwrite", 
+						JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION){
+					return;
+				}
+				
+				if(fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
+					codeText.setText(readStringFromFile(fileChooser.getSelectedFile()));
+				}
+			}
+		});
 		
 		JPanel controlsPanel = new JPanel();
 		controlsPanel.add(loadAssembly);
@@ -161,7 +195,7 @@ public class Window implements Runnable{
 	 * @param text The text to save to the file
 	 * @param file The file to save to
 	 */
-	private void saveToFile(String text, File file){
+	private void saveToFile(byte[] text, File file){
 		try {
 			log("Saving to file " + file.getName() + " ...");
 			
@@ -173,7 +207,7 @@ public class Window implements Runnable{
 			}
 			
 			//Write the text to the file
-			FileWriter writer = new FileWriter(file);
+			OutputStream writer = new FileOutputStream(file);
 			writer.write(text);
 			writer.flush();
 			writer.close();
@@ -186,6 +220,41 @@ public class Window implements Runnable{
 		}
 	}
 	
+	/**
+	 * Reads all lines in the file and returns the string data
+	 * 
+	 * @param file The file to read from
+	 *@return The string read from the file
+	 */
+	private String readStringFromFile(File file){	
+		try{
+			log("Reading from file " + file.getName() + "...");
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			
+			String lines = "";
+			String line;
+			
+			while((line = reader.readLine()) != null){
+				lines += line + "\n";
+			}
+			
+			reader.close();
+			
+			log("File read successfully");
+			return lines;
+		}catch(Exception e){
+			log("Error reading from file " + file.getName());
+		}
+		
+		
+		return "";
+	}
+	
+	/**
+	 * Utility function to write messages to the log-text box
+	 * 
+	 * @param msg The message to log
+	 */
 	private void log(String msg){
 		logText.setText(logText.getText() + "\n" + msg);
 	}

@@ -272,7 +272,6 @@ public class Window implements Runnable, KeyListener{
 			public void actionPerformed(ActionEvent e) {
 				machineRunning = false;
 				machineSetup = false;
-				machine = null;
 				
 				runProgram.setEnabled(false);
 				stopProgram.setEnabled(false);
@@ -281,6 +280,10 @@ public class Window implements Runnable, KeyListener{
 				frameRateSlider.setEnabled(false);
 				
 				loadProgram.setEnabled(true);
+				
+				synchronized (machine) {
+					machine = null;
+				}
 			}
 		});
 		stopProgram.setAlignmentX(Component.CENTER_ALIGNMENT);
