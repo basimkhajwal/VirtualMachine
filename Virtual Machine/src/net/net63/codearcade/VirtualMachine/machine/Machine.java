@@ -38,6 +38,8 @@ public class Machine {
 		keys = new boolean[300];
 		
 		clockTime = Constants.CLOCK_TIME;
+		
+		memory.setByte(10001, 0xFF);
 	}
 	
 	public void update(int deltaTime){
@@ -89,6 +91,10 @@ public class Machine {
 			b = Constants.COLOR_VALUES[b];
 			a = Constants.COLOR_VALUES[a];
 			
+			if(r != 0 || g != 0 || b != 0 || a != 0){
+				System.out.println(r + " " + g + " " + b + " " + a + ": " + i);
+			}
+			
 			videoBuffer.setRGB((i % Constants.VIDEO_WIDTH), (int) (i / Constants.VIDEO_HEIGHT), (new Color(r, g, b, a)).getRGB());
 		}
 		
@@ -120,7 +126,7 @@ public class Machine {
 	public void setTableData(AbstractTableModel table) {
 		
 		for(int i = 0; i < table.getRowCount(); i++){
-			int data = memory.getByte(i) & 0xFFFF;
+			int data = memory.getByte(i) & 0xFF;
 			
 			table.setValueAt(new Integer(i), i, 0);
 			table.setValueAt(new Integer(data), i, 1);
