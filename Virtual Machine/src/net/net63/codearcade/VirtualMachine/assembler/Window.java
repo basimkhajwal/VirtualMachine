@@ -214,6 +214,7 @@ public class Window implements Runnable{
 			
 			//Send success message
 			log("File " + file.getName() + " saved successfully");
+			log("");
 		} catch (IOException e) {
 			log("Error saving to file: " + file.getName());
 			e.printStackTrace();
@@ -241,6 +242,7 @@ public class Window implements Runnable{
 			reader.close();
 			
 			log("File read successfully");
+			log("");
 			return lines;
 		}catch(Exception e){
 			log("Error reading from file " + file.getName());
