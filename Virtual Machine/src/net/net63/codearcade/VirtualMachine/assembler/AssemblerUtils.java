@@ -587,6 +587,8 @@ public class AssemblerUtils {
 		StringBuilder binary = new StringBuilder();
 		
 		for(String line: source.split(LINE_DELIMITER)){
+			if(line == "") continue;
+			
 			int intValue = Integer.parseInt(line, 2);
 			
 			char a = (char)((intValue & 0xFF00) >> 8);
