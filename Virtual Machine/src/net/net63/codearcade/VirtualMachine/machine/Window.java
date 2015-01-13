@@ -64,7 +64,7 @@ public class Window implements Runnable, KeyListener{
 	private Machine machine;
 	
 	/**
-	 * Initialises the machine with data as code from the file
+	 * Initializes the machine with data as code from the file
 	 * 
 	 * @param file The file to create the machine from
 	 */
@@ -111,59 +111,52 @@ public class Window implements Runnable, KeyListener{
 		canvas.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 		canvas.setIgnoreRepaint(true);
 		
-		tabbedPane = new JTabbedPane();
-		
 		JPanel videoMemory = new JPanel();
 		videoMemory.setSize(canvas.getWidth(), canvas.getHeight());
 		videoMemory.add(canvas);
-		tabbedPane.add("Video Memory", videoMemory);
-		
-		JPanel allMemory = new JPanel(new BorderLayout());
-		
+
 		tableModel = new MyModel();
-		
 		memoryTable = new JTable(tableModel);
 		memoryTable.setPreferredScrollableViewportSize(new Dimension(400, 350));
 		memoryTable.setFont(Font.getFont(Font.MONOSPACED));
 		memoryTable.setFillsViewportHeight(true);
 		
-		allMemory.add(new JScrollPane(memoryTable), BorderLayout.NORTH);
-		
 		JPanel registerView = new JPanel();
 		registerView.setLayout(new BorderLayout());
 		registerView.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Registers", TitledBorder.CENTER, TitledBorder.TOP));
-		
 		GridLayout grid = new GridLayout(3,1);
 		grid.setVgap(10);
-		
 		JPanel registerGrid = new JPanel(grid);
 		registerGrid.setBorder(new EmptyBorder(10, 50, 10, 0));
-		
 		addressLabel = new JLabel("Address Register:");
 		dataLabel = new JLabel("Data Register: ");
 		pcLabel = new JLabel("Program Counter Register: ");
-		
 		registerGrid.add(addressLabel);
 		registerGrid.add(dataLabel);
 		registerGrid.add(pcLabel);
-		
 		registerView.add(registerGrid, BorderLayout.CENTER);
 		
+		JPanel allMemory = new JPanel(new BorderLayout());
+		allMemory.add(new JScrollPane(memoryTable), BorderLayout.NORTH);
 		allMemory.add(registerView, BorderLayout.CENTER);
-		
-		tabbedPane.add("Memory & Registers", allMemory);
 		
 		JPanel logPanel = new JPanel(new BorderLayout());
 		logText = new JTextArea(11,30);
 		logText.setEditable(false);
 		logText.setMaximumSize(new Dimension(WIDTH - 30, 550));
+		logPanel.add(new JScrollPane(logText), BorderLayout.CENTER);
 		
-		logPanel.add(new JScrollPane(logText));
-		
+		tabbedPane = new JTabbedPane();
+		tabbedPane.add("Video Memory", videoMemory);
+		tabbedPane.add("Memory & Registers", allMemory);
 		tabbedPane.add("Log", logPanel);
 		
 		panel.add(tabbedPane, BorderLayout.NORTH);
 		
+		setupControls(panel);
+	}
+	
+	private void setupControls(JPanel panel){
 		JPanel controls = new JPanel();
 		controls.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Controls", TitledBorder.CENTER, TitledBorder.TOP));
 		controls.setLayout(new FlowLayout());
