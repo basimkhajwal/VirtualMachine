@@ -1,12 +1,11 @@
 package net.net63.codearcade.VirtualMachine.machine;
 
+import javax.swing.SwingUtilities;
 
 public class VirtualMachine {
 
 	public static void main(String[] args) {
-		Window window = new Window();
-		
-		new Thread(window).run();
+		SwingUtilities.invokeLater(new Window());
 
 	}
 
