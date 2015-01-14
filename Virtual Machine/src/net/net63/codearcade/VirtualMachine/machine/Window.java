@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.io.File;
 import java.io.FileInputStream;
@@ -322,7 +324,15 @@ public class Window extends JFrame implements Runnable, KeyListener{
 		
 		setupGUI(panel); 	
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		super.addWindowListener(new WindowAdapter(){
+			
+			@Override
+			public void windowClosing(WindowEvent e){
+				Window.this.running = false;
+				System.exit(0);
+			}
+			
+		});
 		pack();
 		setResizable(false);
 		setVisible(true);
@@ -345,7 +355,9 @@ public class Window extends JFrame implements Runnable, KeyListener{
 
 	@Override
 	public void run() {
-
+		
+		System.out.println("Running..");
+		
 		long beginLoopTime;
 		long endLoopTime;
 		long currentUpdateTime = System.nanoTime();
@@ -353,17 +365,19 @@ public class Window extends JFrame implements Runnable, KeyListener{
 		long deltaLoop;
 
 		while (running) {
+			System.out.println("Looping");
+			
 			beginLoopTime = System.nanoTime();
 			
 			if(canvas.isShowing()){
-				render();
+				renderCanvas();
 				canvas.requestFocus();
 			}
 			
 			lastUpdateTime = currentUpdateTime;
 			currentUpdateTime = System.nanoTime();
 			
-			update((int) ( (currentUpdateTime - lastUpdateTime) / (1000 * 1000) ) );
+			updateProgram((int) ( (currentUpdateTime - lastUpdateTime) / (1000 * 1000) ) );
 
 			endLoopTime = System.nanoTime();
 			deltaLoop = endLoopTime - beginLoopTime;
@@ -375,10 +389,14 @@ public class Window extends JFrame implements Runnable, KeyListener{
 					
 				}
 			}
+			
+			
 		}
+		
+		
 	}
 
-	private void render() {
+	private void renderCanvas() {
 		Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
 		
 		render(g);
@@ -410,7 +428,7 @@ public class Window extends JFrame implements Runnable, KeyListener{
 		}
 	}
 	
-	protected void update(int deltaTime) {
+	protected void updateProgram(int deltaTime) {
 		if(machineRunning){
 			machine.update(deltaTime);	
 		}else if(machineSetup){
@@ -424,10 +442,11 @@ public class Window extends JFrame implements Runnable, KeyListener{
 	}
 
 	protected void render(Graphics2D g) {
-		g.clearRect(0, 0, WIDTH, HEIGHT);
 		
 		if(machineSetup && machine.isUpdated()){
-			g.drawImage(machine.getVideoBuffer(), 0, 0, 450, 450, 0, 0, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, null);	
+			g.clearRect(0, 0, WIDTH, HEIGHT);
+			g.drawImage(machine.getVideoBuffer(), 0, 0, 450, 450, 0, 0, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT, null);
+			System.out.println("Just drawn");
 		}
 		
 	}
