@@ -303,7 +303,7 @@ public class Window implements Runnable, KeyListener{
 		}
 	}
 	
-	public Window() {
+	private void setup() {
 		frame = new JFrame("Virtual Machine");
 		
 		machineRunning = false;
