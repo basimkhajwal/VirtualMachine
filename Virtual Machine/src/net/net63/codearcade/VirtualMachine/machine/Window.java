@@ -38,15 +38,16 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
-public class Window implements Runnable, KeyListener{
+public class Window extends JFrame implements Runnable, KeyListener{
 
+	private static final long serialVersionUID = 4443345069352769839L;
+	
 	private final int WIDTH = 1000;
 	private final int HEIGHT = 650;
 	
 	private final int CANVAS_WIDTH = 450;
 	private final int CANVAS_HEIGHT = 450;
 	
-	private JFrame frame;
 	private JTable memoryTable;
 	private JButton loadProgram, runProgram, pauseProgram, stopProgram, stepProgram;
 	private JTextArea logText;
@@ -62,6 +63,16 @@ public class Window implements Runnable, KeyListener{
 	private boolean machineRunning;
 	
 	private Machine machine;
+	
+	public Window(){
+		super("Virtual Machine");
+		
+		System.out.println("Setting up...");
+		
+		setup();
+		
+		System.out.println("All setup");
+	}
 	
 	/**
 	 * Initializes the machine with data as code from the file
@@ -96,9 +107,9 @@ public class Window implements Runnable, KeyListener{
 			machineRunning = false;
 			
 		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(frame, "Error loading this file, try again");
+			JOptionPane.showMessageDialog(this, "Error loading this file, try again");
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(frame, "Error reading fromt the file specified, try again");
+			JOptionPane.showMessageDialog(this, "Error reading fromt the file specified, try again");
 		} 
 		
 	}
@@ -202,7 +213,7 @@ public class Window implements Runnable, KeyListener{
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileChooser = new JFileChooser();
 				
-				if(fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
+				if(fileChooser.showOpenDialog(Window.this) == JFileChooser.APPROVE_OPTION){
 					newMachineFromFile(fileChooser.getSelectedFile());
 					
 					if(machineSetup){
@@ -234,7 +245,7 @@ public class Window implements Runnable, KeyListener{
 					frameRateSlider.setEnabled(false);
 					
 				}else{
-					JOptionPane.showMessageDialog(frame, "Please load a machine first!");
+					JOptionPane.showMessageDialog(Window.this, "Please load a machine first!");
 				}
 			}
 		});
@@ -303,20 +314,18 @@ public class Window implements Runnable, KeyListener{
 		}
 	}
 	
-	private void setup() {
-		frame = new JFrame("Virtual Machine");
-		
+	public void setup() {
 		machineRunning = false;
 		machineSetup = false;
 		
-		JPanel panel = (JPanel) frame.getContentPane();
+		JPanel panel = (JPanel) getContentPane();
 		
 		setupGUI(panel); 	
 		
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setResizable(false);
-		frame.setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		pack();
+		setResizable(false);
+		setVisible(true);
 		
 		panel.addKeyListener(this);
 		panel.setFocusable(true);
@@ -326,7 +335,7 @@ public class Window implements Runnable, KeyListener{
 		canvas.createBufferStrategy(2);
 		bufferStrategy = canvas.getBufferStrategy();
 		
-		canvas.setFocusable(false);
+		canvas.setFocusable(true);
 	}
 
 	private long desiredFPS = 60;
@@ -345,12 +354,15 @@ public class Window implements Runnable, KeyListener{
 
 		while (running) {
 			beginLoopTime = System.nanoTime();
+			
 			if(canvas.isShowing()){
 				render();
 				canvas.requestFocus();
 			}
+			
 			lastUpdateTime = currentUpdateTime;
 			currentUpdateTime = System.nanoTime();
+			
 			update((int) ( (currentUpdateTime - lastUpdateTime) / (1000 * 1000) ) );
 
 			endLoopTime = System.nanoTime();
