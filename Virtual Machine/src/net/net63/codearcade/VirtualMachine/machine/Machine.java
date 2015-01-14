@@ -104,7 +104,12 @@ public class Machine {
 	}
 	
 	public boolean isUpdated(){
-		return justUpdated;
+		if(justUpdated){
+			justUpdated = false;
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public void keyPressed(int keycode){
