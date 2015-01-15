@@ -2,6 +2,13 @@ package net.net63.codearcade.VirtualMachine.machine;
 
 import javax.swing.JTextArea;
 
+/**
+ * 
+ * A CPU class to abstract the inner mechanism of the virtual machine
+ * 
+ * @author Basim
+ *
+ */
 public class CPU{
 	
 	private Memory RAM;
@@ -53,13 +60,21 @@ public class CPU{
 		pcRegister = Constants.SEGMENTS.CODE.getAddress();
 		
 		log("Created");
-		System.out.println();
 	}
 	
+	/**
+	 * Writes a log message
+	 * 
+	 * @param message The message to log
+	 */
 	private void log(String message){
 		logText.setText(logText.getText() + "\nCPU: \t\t" + message);
 	}
 	
+	/**
+	 * Executes the value in the current instruction
+	 * 
+	 */
 	private void execute(){
 		if(getBit(currentInstruction, BITS.INSTRUCTION_TYPE)){
 			log("Executing Address Intruction");
@@ -70,7 +85,7 @@ public class CPU{
 			//Remove the first bit
 			addressRegister = (short) (addressRegister & MASKS.USHORT);
 			
-			log("Changed Address To: "  + addressRegister + ", " + String.format("%15sh", Integer.toUnsignedString(addressRegister, 2) ) .replace(' ', '0')  );
+			log("Changed Address To: "  + addressRegister + ", 0b" + IntegerUtils.paddedBinaryString(addressRegister));
 			
 		}else{
 			log("Executing Compute Intruction");
@@ -169,21 +184,37 @@ public class CPU{
 		}
 	}
 	
+	/**
+	 * Gets a certain bit from an integer
+	 * 
+	 * @param value The integer to get the bit from
+	 * @param position The index of the bit with 0 being the rightmost bit
+	 * @return true if the bit is set false otherwise
+	 */
 	private boolean getBit(int value, int position){
 		return ((value >> position) & 0x01) == 1;
 	}
 	
+	/**
+	 * Runs the fetch part, loads the next instruction into the currentInstruction register
+	 */
 	private void fetch(){
 		currentInstruction = RAM.getWord(pcRegister);
-		log(String.format("%15sh", Integer.toUnsignedString(currentInstruction, 2) ) .replace(' ', '0'));
+		log(IntegerUtils.paddedBinaryString(currentInstruction));
 		incPC();
 	}
 
+	/**
+	 * Step one instruction in the CPU consisting of a fetch-execute cycle
+	 */
 	public void stepInstruction() {
 		fetch();
 		execute();
 	}
 	
+	/**
+	 * Move the PC counter onwards
+	 */
 	private void incPC(){
 		pcRegister += 2;
 	}
