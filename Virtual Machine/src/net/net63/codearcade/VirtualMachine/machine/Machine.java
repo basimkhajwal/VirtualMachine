@@ -104,12 +104,7 @@ public class Machine {
 	}
 	
 	public boolean isUpdated(){
-		if(justUpdated){
-			justUpdated = false;
-			return true;
-		}
-		
-		return false;
+		return justUpdated;
 	}
 	
 	public void keyPressed(int keycode){
@@ -129,8 +124,8 @@ public class Machine {
 			
 			table.setValueAt(new Integer(i), i, 0);
 			table.setValueAt(new Integer(data), i, 1);
-			table.setValueAt("0x" + String.format("%2s", Integer.toUnsignedString(data, 16) ).replace(' ', '0').toUpperCase(), i, 2);
-			table.setValueAt("0b" + String.format("%8s", Integer.toUnsignedString(data, 2) ).replace(' ', '0'), i, 3);
+			table.setValueAt("0x" + IntegerUtils.paddedHexString(data), i, 2);
+			table.setValueAt("0b" + IntegerUtils.paddedBinaryString(data).substring(8, 16), i, 3);
 		}
 	}
 

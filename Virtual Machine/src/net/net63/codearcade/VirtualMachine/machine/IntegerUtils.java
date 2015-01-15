@@ -8,10 +8,18 @@ package net.net63.codearcade.VirtualMachine.machine;
 public class IntegerUtils {
 	
 	public static String toUnsignedBinaryString(int n){
-		return Long.toBinaryString((long) n).substring(0, 32);
+		return Long.toBinaryString((long) n);
+	}
+	
+	public static String toUnsignedHexString(int n){
+		return Long.toHexString((long) n);
 	}
 	
 	public static String paddedBinaryString(int n){
-		return String.format("%15s", toUnsignedBinaryString(n)).replace(' ', '0');
+		return String.format("%16s", toUnsignedBinaryString(n)).replace(' ', '0');
+	}
+	
+	public static String paddedHexString(int n){
+		return String.format("%4s", toUnsignedHexString(n)).replace(' ', '0').toUpperCase();
 	}
 }
