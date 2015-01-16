@@ -7,6 +7,12 @@ package net.net63.codearcade.VirtualMachine.machine;
  */
 public class IntegerUtils {
 	
+	/**
+	 * Returns an unsigned binary string representation of an integer using a long, for compatibility with java 1.7
+	 * 
+	 * @param n The integer
+	 * @return The binary string representation
+	 */
 	public static String toUnsignedBinaryString(int n){
 		return Long.toBinaryString((long) n);
 	}
